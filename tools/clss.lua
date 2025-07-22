@@ -1,11 +1,117 @@
     -- tools
 local love = require("love")
 local utls = require("tools.utils")
+    -- logs
+local asst = require("logs.asst")
 
-    -- Classes
+
+    -- classes
 local clss = {}
 
-function clss.newSpace()
+function clss.game(twarzship_x, twarzship_y)
+    local game = {}
+
+    -- helpers
+    local function drawHUD()
+            -- box
+        love.graphics.setColor(asst.clrs.grey)
+        love.graphics.rectangle("fill", 0, 0, game.coords.stats_w, game.coords.stats_h)
+
+            -- empty bars
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.rectangle("fill", 16, 16, love.graphics.getWidth()-32, 32)
+        love.graphics.rectangle("fill", 16, 48, love.graphics.getWidth()-32, 24)
+
+            -- bars
+        love.graphics.setColor(asst.clrs.red)
+        love.graphics.rectangle("fill", 16, 16, (love.graphics.getWidth()-32)*(game.twarzship.stats.health/game.twarzship.stats.max_health), 32)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle("fill", 16, 48, (love.graphics.getWidth()-32)*(game.twarzship.stats.shield/game.twarzship.stats.max_shield), 24)
+
+            -- bars text
+        love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
+        love.graphics.print(game.twarzship.stats.health, love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(game.twarzship.stats.health)/2, 16)
+        love.graphics.setColor(asst.clrs.red); love.graphics.setFont(asst.fnts.lilfont_a)
+        love.graphics.print(game.twarzship.stats.shield, love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(game.twarzship.stats.shield)/2, 45)
+
+            -- score
+        love.graphics.setColor(0.025, 0.025, 0.025)
+        love.graphics.print(game.currentdata.score, 16, 70)
+
+            -- timer
+        love.graphics.print(
+            math.floor(game.currentdata.timer),
+            (love.graphics.getWidth() - 16) - (asst.fnts.lilfont_a:getWidth(math.floor(game.currentdata.timer))),
+            70
+        )
+    end
+
+    game.coords = {
+        stats_w = love.graphics.getWidth(),
+        stats_h = 100
+    }
+    game.state = "playing" -- "playing"|"dead"
+    game.currentdata = {
+        score = 0,
+        timer = 0,
+    }
+    game.globaldata = {
+        high_score = 0,
+    }
+
+    game.space = clss.newSpace(game)
+    game.twarzship = clss.newTwarzship(game.space, twarzship_x, twarzship_y)
+
+    function game.clear(self)
+        self.twarzship:clear()
+        self.space:clear()
+
+        game.state = "playing"
+        game.currentdata = {
+            score = 0,
+            timer = 0
+        }
+    end
+
+    function game.update(self)
+        if game.state == "playing" then
+            game.currentdata.timer = game.currentdata.timer + love.timer.getAverageDelta()
+            if self.twarzship:update() then
+                game.state = "dead"
+                goto dead
+            end
+            self.space:update(
+                function(obj)
+                    if (obj.init and not obj.init.isInit) or (not obj.init) then
+                        self.twarzship:interactWithObject(obj)
+                    end
+                end)
+
+            ::dead::
+        end
+    end
+    function game.draw(self)
+        if game.state == "playing" then
+            -- Background
+            love.graphics.setColor(0.025, 0.025, 0.025)
+            love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+            self.space:draw()
+            self.twarzship:draw()
+            drawHUD()
+
+        elseif game.state == "dead" then
+            -- Background
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+            self.twarzship:draw()
+        end
+    end
+
+    return game
+end
+function clss.newSpace(_game)
     local space = {
         -- Actual enemies, bosses and projectiles.
         objects = {},
@@ -21,6 +127,8 @@ function clss.newSpace()
             y = 100 --magic numbers go brrr
         }
     }
+
+    local game = _game
 
     -- Gets space's objects
     function space.getObjects(self)
@@ -70,15 +178,16 @@ function clss.newSpace()
 
     function space.clear(self)
         self.objects = {}
-        self.managers = {}
+        self.bullets = {}
     end
 
     local function checkShoot(obj, bullets)
-        if obj.hurtable then
+        if obj.hurtable and ((obj.init and not obj.init.isInit) or (not obj.init)) then
             for _, bullet in pairs(bullets) do
                 if utls.getDistanceBetweenPoints(obj.x, obj.y, bullet.x, bullet.y) < obj.r + bullet.r then
                     obj.life = obj.life - bullet.damage
                     obj.state = "hurt"
+                    game.currentdata.score = game.currentdata.score + 1
                 end
             end
         end
@@ -140,7 +249,7 @@ function clss.newBullet(x, y, vx, vy, dmg)
     end
 
     function bullet.draw(self)
-        love.graphics.setColor(0.4, 0.4, 0.4, self.life / 2)
+        love.graphics.setColor(asst.clrs.mdrey[1], asst.clrs.mdrey[2], asst.clrs.mdrey[3], self.life / 2)
         love.graphics.setLineWidth(4)
         love.graphics.circle("line", self.x, self.y, self.r)
         love.graphics.setColor(1, 1, 1)
@@ -246,23 +355,44 @@ function clss.newTwarzship(s, ix, iy)
         self:move()
     end
 
-    function twarzship.shot(self, mode)
+    function twarzship.shot(self, x, y)
+        asst.snds.twarzship_shot:stop()
+        asst.snds.twarzship_shot:play()
         s:insertBullet(
             clss.newBullet(
                 self.space.x,
                 self.space.y,
-                0,
-                self.shooting.bullet_velocity * mode,
+                self.shooting.bullet_velocity * x,
+                self.shooting.bullet_velocity * y,
                 self.shooting.bullet_damage
             )
         )
     end
+    function twarzship.hit(self, damage)
+        asst.snds.twarzship_hurt:play()
+        if self.stats.shield > 0 then
+            self.stats.shield = utls.limit(self.stats.shield - damage, 0, self.stats.max_shield)
+        else
+            self.stats.health = utls.limit(self.stats.health - damage, 0, self.stats.max_health)
+        end
+    end
     function twarzship.processShooting(self)
-        if love.keyboard.isDown("k") and self.shooting.bullet_timer <= 0 then
-            self:shot(-1)
-            self.shooting.bullet_timer = self.shooting.bullet_delay
-        elseif love.keyboard.isDown("l") and self.shooting.bullet_timer <= 0 then
-            self:shot(1)
+        local shot_dir = {x = 0, y = 0}
+
+        if love.keyboard.isDown("delete") and self.shooting.bullet_timer <= 0 then
+            shot_dir.x = -1
+        elseif love.keyboard.isDown("pagedown") and self.shooting.bullet_timer <= 0 then
+            shot_dir.x = 1
+        end
+
+        if love.keyboard.isDown("home") and self.shooting.bullet_timer <= 0 then
+            shot_dir.y = -1
+        elseif love.keyboard.isDown("end") and self.shooting.bullet_timer <= 0 then
+            shot_dir.y = 1
+        end
+
+        if shot_dir.x ~= 0 or shot_dir.y ~= 0 then
+            self:shot(shot_dir.x, shot_dir.y)
             self.shooting.bullet_timer = self.shooting.bullet_delay
         end
 
@@ -272,6 +402,7 @@ function clss.newTwarzship(s, ix, iy)
     function twarzship.update(self)
         self.state = "idle"
         if self.stats.health <= 0 then
+            asst.snds.twarzship_dead:play()
             self.state = "dead"
             return true
         end
@@ -292,7 +423,7 @@ function clss.newTwarzship(s, ix, iy)
     function twarzship.interactWithObject(self, obj)
         if utls.getDistanceBetweenPoints(self.space.x, self.space.y, obj.x, obj.y) <= self.space.r + obj.r then
             twarzship.state = "hurt"
-            twarzship.stats.health = twarzship.stats.health - obj.damage
+            self:hit(obj.damage)
         end
     end
     function twarzship.clear(self)
