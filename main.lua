@@ -4,6 +4,7 @@ local clss = require("tools.clss")
 local utls = require("tools.utils")
     -- logs
 local enms = require("logs.enms")
+local asst = require("logs.asst")
 
 
 -- values
@@ -76,10 +77,10 @@ end
 
 function love.keypressed(key)
     if game.state == "dead" then
+        asst.snds.new_game:play()
+        asst.snds.new_game:play()
         game:clear()
+    elseif key == "escape" then
+        game.state = utls.boolToValue(game.state == "paused", "playing", "paused")
     end
-end
-
-function love.mousepressed(x, y, mode)
-
 end

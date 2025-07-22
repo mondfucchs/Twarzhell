@@ -21,6 +21,10 @@ asst.snds = {
     twarzship_shot = love.audio.newSource("assets/sounds/twarzship_shot.wav", "static"),
     twarzship_hurt = love.audio.newSource("assets/sounds/twarzship_hurt.wav", "static"),
     twarzship_dead = love.audio.newSource("assets/sounds/twarzship_dead.wav", "static"),
+    enemy_shot = love.audio.newSource("assets/sounds/enemy_shot.wav", "static"),
+    enemy_hurt = love.audio.newSource("assets/sounds/enemy_hurt.wav", "static"),
+    enemy_dead = love.audio.newSource("assets/sounds/enemy_dead.wav", "static"),
+    new_game = love.audio.newSource("assets/sounds/new_game.wav", "static"),
     explosion = love.audio.newSource("assets/sounds/explosion.wav", "static"),
 }
 

@@ -77,6 +77,9 @@ function clss.game(twarzship_x, twarzship_y)
         if game.state == "playing" then
             game.currentdata.timer = game.currentdata.timer + love.timer.getAverageDelta()
             if self.twarzship:update() then
+                if game.currentdata.score > game.globaldata.high_score then
+                    game.globaldata.high_score = game.currentdata.score
+                end
                 game.state = "dead"
                 goto dead
             end
@@ -91,7 +94,7 @@ function clss.game(twarzship_x, twarzship_y)
         end
     end
     function game.draw(self)
-        if game.state == "playing" then
+        if self.state == "playing" or self.state == "paused" then
             -- Background
             love.graphics.setColor(0.025, 0.025, 0.025)
             love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
@@ -99,13 +102,28 @@ function clss.game(twarzship_x, twarzship_y)
             self.space:draw()
             self.twarzship:draw()
             drawHUD()
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print(#self.space.objects, 16, 96)
 
-        elseif game.state == "dead" then
+        elseif self.state == "dead" then
             -- Background
             love.graphics.setColor(1, 1, 1)
             love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
+            -- Score
+            love.graphics.setColor(0.5, 0.5, 0.5)
+            love.graphics.print(self.globaldata.high_score, math.floor(love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(self.globaldata.high_score)/2), 32)
+            love.graphics.setColor(0.025, 0.025, 0.025)
+            love.graphics.print(self.currentdata.score, math.floor(love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 48)
+
             self.twarzship:draw()
+        end
+
+        if game.state == "paused" then
+            love.graphics.setColor(0.025, 0.025, 0.025, 0.5)
+            love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+            love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
+            love.graphics.print("PAUSED", math.floor(love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth("PAUSED")/2), math.floor(love.graphics.getHeight()/2 - asst.fnts.lilfont_a:getHeight("PAUSED")/2))
         end
     end
 
@@ -185,6 +203,7 @@ function clss.newSpace(_game)
         if obj.hurtable and ((obj.init and not obj.init.isInit) or (not obj.init)) then
             for _, bullet in pairs(bullets) do
                 if utls.getDistanceBetweenPoints(obj.x, obj.y, bullet.x, bullet.y) < obj.r + bullet.r then
+                    asst.snds.enemy_hurt:play()
                     obj.life = obj.life - bullet.damage
                     obj.state = "hurt"
                     game.currentdata.score = game.currentdata.score + 1
@@ -202,6 +221,10 @@ function clss.newSpace(_game)
         for i, object in pairs(self.objects) do
             object.state = "idle"
             if not object:update(self) then
+                if object.hurtable then
+                    asst.snds.enemy_dead:stop()
+                    asst.snds.enemy_dead:play()
+                end
                 table.remove(self.objects, i)
             end
 
