@@ -272,9 +272,9 @@ function clss.newBullet(x, y, vx, vy, dmg)
     end
 
     function bullet.draw(self)
-        love.graphics.setColor(asst.clrs.mdrey[1], asst.clrs.mdrey[2], asst.clrs.mdrey[3], self.life / 2)
+        love.graphics.setColor(asst.clrs.brey[1], asst.clrs.brey[2], asst.clrs.brey[3], self.life / 2)
         love.graphics.setLineWidth(4)
-        love.graphics.circle("line", self.x, self.y, self.r)
+        love.graphics.circle("fill", self.x, self.y, self.r)
         love.graphics.setColor(1, 1, 1)
     end
 
