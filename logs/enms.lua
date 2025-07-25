@@ -13,7 +13,7 @@ function enms.bullet(ix, iy, vx, vy, color)
         vx = vx,
         vy = vy,
         c = color or {0.8, 0.1, 0.1},
-        r = 8,
+        r = 4,
         damage = 2,
         life = 3,
         state = "idle"
@@ -48,7 +48,7 @@ function enms.polyshooter(x, y, bullets, delay)
     local polyshooter = {
         x = x,
         y = y,
-        r = 40,
+        r = 20,
         state = "idle",
         init = {
             isInit = true,
@@ -63,7 +63,7 @@ function enms.polyshooter(x, y, bullets, delay)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 4
+            vel = 2
         }
     }
 
@@ -106,7 +106,7 @@ function enms.polyshooter(x, y, bullets, delay)
     function polyshooter.draw(self)
         love.graphics.setColor(colors[self.state])
         if self.init.isInit then love.graphics.setColor(colors["init"]) end
-        love.graphics.setLineWidth(10)
+        love.graphics.setLineWidth(6)
         love.graphics.circle("line", self.x, self.y, self.r)
     end
 
@@ -116,7 +116,7 @@ function enms.polybomb(x, y, bullets, delay)
     local polybomb = {
         x = x,
         y = y,
-        r = 20,
+        r = 10,
         state = "idle",
         init = {
             isInit = true,
@@ -130,7 +130,7 @@ function enms.polybomb(x, y, bullets, delay)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 6
+            vel = 3
         }
     }
 
@@ -178,8 +178,10 @@ function enms.polybomb(x, y, bullets, delay)
             31/255 + (1 - self.timer), self.life}
         )
         if self.init.isInit then love.graphics.setColor{240/255, 104/255, 31/255, 0.5} end
-        love.graphics.setLineWidth(10)
+        love.graphics.setLineWidth(5)
         love.graphics.circle("line", self.x, self.y, self.r)
+        love.graphics.setLineWidth(0)
+        love.graphics.circle("fill", self.x, self.y, self.r*5/10)
     end
 
     return polybomb
@@ -194,7 +196,7 @@ function enms.polyspin(x, y, bullets, delay)
     local polyspin = {
         x = x,
         y = y,
-        r = 30,
+        r = 15,
         state = "idle",
         init = {
             isInit = true,
@@ -210,7 +212,7 @@ function enms.polyspin(x, y, bullets, delay)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 2
+            vel = 1
         },
     }
 
@@ -255,7 +257,7 @@ function enms.polyspin(x, y, bullets, delay)
     function polyspin.draw(self)
         love.graphics.setColor(colors[self.state])
         if self.init.isInit then love.graphics.setColor(colors["init"]) end
-        love.graphics.setLineWidth(10)
+        love.graphics.setLineWidth(8)
         love.graphics.circle("line", self.x, self.y, self.r)
     end
 

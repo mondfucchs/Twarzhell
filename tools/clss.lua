@@ -8,47 +8,47 @@ local asst = require("logs.asst")
     -- classes
 local clss = {}
 
-function clss.game(twarzship_x, twarzship_y)
+function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     local game = {}
 
     -- helpers
     local function drawHUD()
             -- box
         love.graphics.setColor(asst.clrs.grey)
-        love.graphics.rectangle("fill", 0, 0, game.coords.stats_w, game.coords.stats_h)
+        love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.stats_height)
 
             -- empty bars
         love.graphics.setColor(0, 0, 0)
-        love.graphics.rectangle("fill", 16, 16, love.graphics.getWidth()-32, 32)
-        love.graphics.rectangle("fill", 16, 48, love.graphics.getWidth()-32, 24)
+        love.graphics.rectangle("fill", 8, 8, game.coords.game_width-16, 16)
+        love.graphics.rectangle("fill", 8, 24, game.coords.game_width-16, 12)
 
             -- bars
         love.graphics.setColor(asst.clrs.red)
-        love.graphics.rectangle("fill", 16, 16, (love.graphics.getWidth()-32)*(game.twarzship.stats.health/game.twarzship.stats.max_health), 32)
+        love.graphics.rectangle("fill", 8, 8, (game.coords.game_width-16)*(game.twarzship.stats.health/game.twarzship.stats.max_health), 16)
         love.graphics.setColor(1, 1, 1)
-        love.graphics.rectangle("fill", 16, 48, (love.graphics.getWidth()-32)*(game.twarzship.stats.shield/game.twarzship.stats.max_shield), 24)
+        love.graphics.rectangle("fill", 8, 24, (game.coords.game_width-16)*(game.twarzship.stats.shield/game.twarzship.stats.max_shield), 12)
 
             -- bars text
         love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
-        love.graphics.print(game.twarzship.stats.health, love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(game.twarzship.stats.health)/2, 16)
+        love.graphics.print(game.twarzship.stats.health, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(game.twarzship.stats.health)/2), 9)
         love.graphics.setColor(asst.clrs.red); love.graphics.setFont(asst.fnts.lilfont_a)
-        love.graphics.print(game.twarzship.stats.shield, love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(game.twarzship.stats.shield)/2, 45)
+        love.graphics.print(game.twarzship.stats.shield, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(game.twarzship.stats.shield)/2), 22)
 
             -- score
         love.graphics.setColor(0.025, 0.025, 0.025)
-        love.graphics.print(game.currentdata.score, 16, 70)
+        love.graphics.print(game.currentdata.score, 8, 35)
 
             -- timer
         love.graphics.print(
             math.floor(game.currentdata.timer),
-            (love.graphics.getWidth() - 16) - (asst.fnts.lilfont_a:getWidth(math.floor(game.currentdata.timer))),
-            70
+            (game.coords.game_width - 8) - (asst.fnts.lilfont_a:getWidth(math.floor(game.currentdata.timer))),
+            35
         )
     end
 
     game.coords = {
-        stats_w = love.graphics.getWidth(),
-        stats_h = 100
+        game_width = game_width,
+        stats_height = 50
     }
     game.state = "playing" -- "playing"|"dead"
     game.currentdata = {
@@ -139,10 +139,10 @@ function clss.newSpace(_game)
         managers = {},
         -- General information about the entire space itself
         data = {
-            w = 500,
-            h = 500,
+            w = 250,
+            h = 250,
             x = 0,
-            y = 100 --magic numbers go brrr
+            y = 50 --magic numbers go brrr
         }
     }
 
@@ -255,7 +255,7 @@ function clss.newBullet(x, y, vx, vy, dmg)
         y = y,
         vx = vx,
         vy = vy,
-        r = 8,
+        r = 4,
         damage = dmg,
         life = 2,
     }
@@ -273,7 +273,6 @@ function clss.newBullet(x, y, vx, vy, dmg)
 
     function bullet.draw(self)
         love.graphics.setColor(asst.clrs.brey[1], asst.clrs.brey[2], asst.clrs.brey[3], self.life / 2)
-        love.graphics.setLineWidth(4)
         love.graphics.circle("fill", self.x, self.y, self.r)
         love.graphics.setColor(1, 1, 1)
     end
@@ -290,14 +289,14 @@ function clss.newTwarzship(s, ix, iy)
         space = {
             x = ix,
             y = iy,
-            r = 16,
+            r = 8,
 
             vel_x = 0,
             vel_y = 0,
-            vel_max = 8,
+            vel_max = 4,
 
-            acc = 0.5,
-            dcc = 0.25,
+            acc = 0.25,
+            dcc = 0.125,
         },
 
         stats = {
@@ -311,7 +310,7 @@ function clss.newTwarzship(s, ix, iy)
             bullet_damage = 1/8,
             bullet_delay = 1/8,
             bullet_timer = 0,
-            bullet_velocity = 8,
+            bullet_velocity = 4,
         },
 
         colors = {
@@ -437,8 +436,8 @@ function clss.newTwarzship(s, ix, iy)
         love.graphics.setColor(self.colors[self.state])
         love.graphics.setLineWidth(
             self.state == "dead"
-            and 4
-            or  8
+            and 2
+            or  4
         )
         love.graphics.circle("line", self.space.x, self.space.y, self.space.r)
     end
@@ -450,18 +449,10 @@ function clss.newTwarzship(s, ix, iy)
         end
     end
     function twarzship.clear(self)
-        self.space = {
-            x = ix,
-            y = iy,
-            r = 16,
-
-            vel_x = 0,
-            vel_y = 0,
-            vel_max = 8,
-
-            acc = 0.5,
-            dcc = 0.1,
-        }
+        self.space.x = ix
+        self.space.y = iy
+        self.space.vel_x = 0
+        self.space.vel_y = 0
 
         self.stats.state = "idle"
         self.stats.health = self.stats.max_health

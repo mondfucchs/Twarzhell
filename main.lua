@@ -1,6 +1,7 @@
     -- tools
 local love = require("love")
 local clss = require("tools.clss")
+local push = require("tools.push")
 local utls = require("tools.utils")
     -- logs
 local enms = require("logs.enms")
@@ -8,18 +9,35 @@ local asst = require("logs.asst")
 
 
 -- values
+local gameWidth = 250
+local gameHeight = 300
+local scale = 2
 local coords = {
-    ship_initial_x = love.graphics.getWidth() / 2,
-    ship_initial_y = (love.graphics.getHeight() - 100) / 2,
+    ship_initial_x = gameWidth / 2,
+    ship_initial_y = gameHeight / 2,
 }
+
+-- graphics configs
+love.graphics.setLineStyle("rough")
+love.graphics.setDefaultFilter("nearest", "nearest")
 
 math.randomseed(os.clock())
 
 -- structures
-local game = clss.game(coords.ship_initial_x, coords.ship_initial_y)
+local game = clss.game(coords.ship_initial_x, coords.ship_initial_y, gameWidth, gameHeight)
 
 -- löve2d callbacks
 function love.load()
+    push:setupScreen(
+        gameWidth,
+        gameHeight,
+        gameWidth * scale,
+        gameHeight * scale,
+        {
+            pixelperfect = true
+        }
+    )
+
     local i = 1
     game.space:insertManager(
         enms.manager(
@@ -72,7 +90,9 @@ function love.update()
 end
 
 function love.draw()
+    push:start()
     game:draw()
+    push:finish()
 end
 
 function love.keypressed(key)

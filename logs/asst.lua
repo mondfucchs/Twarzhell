@@ -14,7 +14,7 @@ asst.clrs = {
 }
 
 asst.fnts = {
-    lilfont_a = love.graphics.newFont("assets/fonts/kapel.ttf", 32)
+    lilfont_a = love.graphics.newFont("assets/fonts/kapel.ttf", 16)
 }
 
 asst.snds = {
