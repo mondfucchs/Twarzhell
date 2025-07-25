@@ -48,6 +48,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
 
     game.coords = {
         game_width = game_width,
+        game_height = game_height,
         stats_height = 50
     }
     game.state = "playing" -- "playing"|"dead"
@@ -108,22 +109,22 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         elseif self.state == "dead" then
             -- Background
             love.graphics.setColor(1, 1, 1)
-            love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+            love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.game_height)
 
             -- Score
             love.graphics.setColor(0.5, 0.5, 0.5)
-            love.graphics.print(self.globaldata.high_score, math.floor(love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(self.globaldata.high_score)/2), 32)
+            love.graphics.print(self.globaldata.high_score, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.globaldata.high_score)/2), 16)
             love.graphics.setColor(0.025, 0.025, 0.025)
-            love.graphics.print(self.currentdata.score, math.floor(love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 48)
+            love.graphics.print(self.currentdata.score, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 24)
 
             self.twarzship:draw()
         end
 
         if game.state == "paused" then
             love.graphics.setColor(0.025, 0.025, 0.025, 0.5)
-            love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+            love.graphics.rectangle("fill", 0, 0, self.coords.game_width, self.coords.game_height)
             love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
-            love.graphics.print("PAUSED", math.floor(love.graphics.getWidth()/2 - asst.fnts.lilfont_a:getWidth("PAUSED")/2), math.floor(love.graphics.getHeight()/2 - asst.fnts.lilfont_a:getHeight("PAUSED")/2))
+            love.graphics.print("PAUSED", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("PAUSED")/2), math.floor(self.coords.game_height)/2 - asst.fnts.lilfont_a:getHeight("PAUSED")/2)
         end
     end
 

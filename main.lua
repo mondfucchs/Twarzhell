@@ -38,7 +38,7 @@ function love.load()
         }
     )
 
-    local i = 1
+    local i = 3
     game.space:insertManager(
         enms.manager(
             function(s)
@@ -70,6 +70,15 @@ function love.load()
                     )
                 elseif i == 3 then
                     s:insertObject(
+                        enms.unispin(
+                            s.data.x + math.random(s.data.w),
+                            s.data.y + math.random(s.data.h),
+                            10,
+                            0.1
+                        )
+                    )
+                elseif i == 4 then
+                    s:insertObject(
                         enms.polyspin(
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
@@ -78,7 +87,7 @@ function love.load()
                         )
                     )
                 end
-                i = utls.circular(i + 1, 3)
+                i = utls.circular(i + 1, 4)
             end,
             4
         )

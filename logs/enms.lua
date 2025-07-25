@@ -48,7 +48,7 @@ function enms.polyshooter(x, y, bullets, delay)
     local polyshooter = {
         x = x,
         y = y,
-        r = 20,
+        r = 25,
         state = "idle",
         init = {
             isInit = true,
@@ -262,6 +262,85 @@ function enms.polyspin(x, y, bullets, delay)
     end
 
     return polyspin
+end
+function enms.unispin(x, y, divisions, delay)
+    local colors = {
+        idle = asst.clrs.green,
+        init = {181/255, 232/255, 39/255, 0.5},
+        hurt = {1, 1, 1},
+    }
+
+    local unispin = {
+        x = x,
+        y = y,
+        r = 25,
+        state = "idle",
+        init = {
+            isInit = true,
+            timer = 2
+        },
+
+        life = 60,
+        hurtable = true,
+        damage = 2,
+
+        ltime = 0,
+        delay = delay,
+        timer = delay,
+        bullets = {
+            current = 1,
+            divisions = divisions,
+            vel = 2
+        },
+    }
+
+    function unispin.update(self, S)
+        if self.init.isInit then
+            self.init.timer = self.init.timer - love.timer.getAverageDelta()
+            if self.init.timer <= 0 then
+                self.init.isInit = false
+            end
+            goto init
+        end
+
+        self.ltime = self.ltime + 1/60
+        self.timer = self.timer - love.timer.getAverageDelta()
+        self.life = self.life - love.timer.getAverageDelta()
+
+        if self.timer <= 0 then
+            asst.snds.enemy_shot:stop()
+            asst.snds.enemy_shot:play()
+
+            self.timer = self.delay
+            S:insertObject(
+                enms.bullet(
+                    self.x,
+                    self.y,
+                    math.cos(self.bullets.current) * self.bullets.vel,
+                    math.sin(self.bullets.current) * self.bullets.vel,
+                    asst.clrs.green
+                )
+            )
+
+            self.bullets.current = self.bullets.current + (2*math.pi)/self.bullets.divisions
+        end
+
+        if self.life <= 0 then
+            return false
+        end
+
+        ::init::
+
+        return true
+    end
+    function unispin.draw(self)
+        love.graphics.setColor(colors[self.state])
+        if self.init.isInit then love.graphics.setColor(colors["init"]) end
+        love.graphics.setLineWidth(8)
+        love.graphics.circle("line", self.x, self.y, self.r)
+    end
+
+    return unispin
 end
 
 function enms.manager(action, delay)
