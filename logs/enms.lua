@@ -13,7 +13,7 @@ function enms.bullet(ix, iy, vx, vy, color)
         vx = vx,
         vy = vy,
         c = color or {0.8, 0.1, 0.1},
-        r = 8,
+        r = 4,
         damage = 2,
         life = 3,
         state = "idle"
@@ -38,6 +38,43 @@ function enms.bullet(ix, iy, vx, vy, color)
 
     return bullet
 end
+function enms.gullet(ix, iy, vx, vy, color)
+    local gullet = {
+        single = true,
+        positive = true,
+        x = ix,
+        y = iy,
+        vx = vx,
+        vy = vy,
+        c = color or {0.8, 0.1, 0.1},
+        r = 4,
+        add_shield = 20,
+        life = 3,
+        state = "idle"
+    }
+
+    function gullet.update(self)
+        self.x = self.x + self.vx
+        self.y = self.y + self.vy
+        self.life = self.life - love.timer.getAverageDelta()
+
+        if self.life <= 0 then
+            return false
+        end
+
+        return true
+    end
+
+    function gullet.draw(self)
+        love.graphics.setColor(self.c[1], self.c[2], self.c[3], self.life)
+        love.graphics.circle("fill", self.x, self.y, self.r + 2)
+        love.graphics.setColor(1, 1, 1, self.life)
+        love.graphics.circle("fill", self.x, self.y, self.r)
+    end
+
+    return gullet
+end
+
 function enms.polyshooter(x, y, bullets, delay)
     local colors = {
         idle = asst.clrs.red,
@@ -48,7 +85,7 @@ function enms.polyshooter(x, y, bullets, delay)
     local polyshooter = {
         x = x,
         y = y,
-        r = 40,
+        r = 25,
         state = "idle",
         init = {
             isInit = true,
@@ -63,7 +100,7 @@ function enms.polyshooter(x, y, bullets, delay)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 4
+            vel = 2
         }
     }
 
@@ -84,14 +121,27 @@ function enms.polyshooter(x, y, bullets, delay)
             asst.snds.enemy_shot:play()
             for i = 0, (2 * math.pi)-.1, (2 * math.pi) / self.bullets.amount do
                 self.timer = self.delay
-                S:insertObject(
-                    enms.bullet(
-                        self.x,
-                        self.y,
-                        math.cos(i) * self.bullets.vel,
-                        math.sin(i) * self.bullets.vel
+
+                local bullettype = math.random(1, 10)
+                if bullettype == 1 then
+                    S:insertObject(
+                        enms.gullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel
+                        )
                     )
-                )
+                else
+                    S:insertObject(
+                        enms.bullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel
+                        )
+                    )
+                end
             end
         end
 
@@ -106,7 +156,7 @@ function enms.polyshooter(x, y, bullets, delay)
     function polyshooter.draw(self)
         love.graphics.setColor(colors[self.state])
         if self.init.isInit then love.graphics.setColor(colors["init"]) end
-        love.graphics.setLineWidth(10)
+        love.graphics.setLineWidth(6)
         love.graphics.circle("line", self.x, self.y, self.r)
     end
 
@@ -116,7 +166,7 @@ function enms.polybomb(x, y, bullets, delay)
     local polybomb = {
         x = x,
         y = y,
-        r = 20,
+        r = 10,
         state = "idle",
         init = {
             isInit = true,
@@ -130,7 +180,7 @@ function enms.polybomb(x, y, bullets, delay)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 6
+            vel = 3
         }
     }
 
@@ -150,15 +200,29 @@ function enms.polybomb(x, y, bullets, delay)
             asst.snds.explosion:play()
             for i = 0, (2 * math.pi)-.1, (2 * math.pi) / self.bullets.amount do
                 self.timer = self.delay
-                S:insertObject(
-                    enms.bullet(
-                        self.x,
-                        self.y,
-                        math.cos(i) * self.bullets.vel,
-                        math.sin(i) * self.bullets.vel,
-                        {240/255, 104/255, 31/255}
+
+                local bullettype = math.random(1, 10)
+                if bullettype == 1 then
+                    S:insertObject(
+                        enms.gullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel,
+                            {240/255, 104/255, 31/255}
+                        )
                     )
-                )
+                else
+                    S:insertObject(
+                        enms.bullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel,
+                            {240/255, 104/255, 31/255}
+                        )
+                    )
+                end
             end
             return false
         end
@@ -178,8 +242,10 @@ function enms.polybomb(x, y, bullets, delay)
             31/255 + (1 - self.timer), self.life}
         )
         if self.init.isInit then love.graphics.setColor{240/255, 104/255, 31/255, 0.5} end
-        love.graphics.setLineWidth(10)
+        love.graphics.setLineWidth(5)
         love.graphics.circle("line", self.x, self.y, self.r)
+        love.graphics.setLineWidth(0)
+        love.graphics.circle("fill", self.x, self.y, self.r*5/10)
     end
 
     return polybomb
@@ -194,7 +260,7 @@ function enms.polyspin(x, y, bullets, delay)
     local polyspin = {
         x = x,
         y = y,
-        r = 30,
+        r = 15,
         state = "idle",
         init = {
             isInit = true,
@@ -210,7 +276,7 @@ function enms.polyspin(x, y, bullets, delay)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 2
+            vel = 1
         },
     }
 
@@ -232,15 +298,29 @@ function enms.polyspin(x, y, bullets, delay)
             asst.snds.enemy_shot:play()
             for i = 0, (2 * math.pi)-.1, (2 * math.pi) / self.bullets.amount do
                 self.timer = self.delay
-                S:insertObject(
-                    enms.bullet(
-                        self.x,
-                        self.y,
-                        math.cos(self.ltime*4 + i) * self.bullets.vel,
-                        math.sin(self.ltime*4 + i) * self.bullets.vel,
-                        {240/255, 160/255, 31/255}
+
+                local bullettype = math.random(1, 20)
+                if bullettype == 1 then
+                    S:insertObject(
+                        enms.gullet(
+                            self.x,
+                            self.y,
+                            math.cos(self.ltime*4 + i) * self.bullets.vel,
+                            math.sin(self.ltime*4 + i) * self.bullets.vel,
+                            {240/255, 160/255, 31/255}
+                        )
                     )
-                )
+                else
+                    S:insertObject(
+                        enms.bullet(
+                            self.x,
+                            self.y,
+                            math.cos(self.ltime*4 + i) * self.bullets.vel,
+                            math.sin(self.ltime*4 + i) * self.bullets.vel,
+                            {240/255, 160/255, 31/255}
+                        )
+                    )
+                end
             end
         end
 
@@ -255,11 +335,90 @@ function enms.polyspin(x, y, bullets, delay)
     function polyspin.draw(self)
         love.graphics.setColor(colors[self.state])
         if self.init.isInit then love.graphics.setColor(colors["init"]) end
-        love.graphics.setLineWidth(10)
+        love.graphics.setLineWidth(8)
         love.graphics.circle("line", self.x, self.y, self.r)
     end
 
     return polyspin
+end
+function enms.unispin(x, y, divisions, delay)
+    local colors = {
+        idle = asst.clrs.green,
+        init = {181/255, 232/255, 39/255, 0.5},
+        hurt = {1, 1, 1},
+    }
+
+    local unispin = {
+        x = x,
+        y = y,
+        r = 25,
+        state = "idle",
+        init = {
+            isInit = true,
+            timer = 2
+        },
+
+        life = 60,
+        hurtable = true,
+        damage = 2,
+
+        ltime = 0,
+        delay = delay,
+        timer = delay,
+        bullets = {
+            current = 1,
+            divisions = divisions,
+            vel = 2
+        },
+    }
+
+    function unispin.update(self, S)
+        if self.init.isInit then
+            self.init.timer = self.init.timer - love.timer.getAverageDelta()
+            if self.init.timer <= 0 then
+                self.init.isInit = false
+            end
+            goto init
+        end
+
+        self.ltime = self.ltime + 1/60
+        self.timer = self.timer - love.timer.getAverageDelta()
+        self.life = self.life - love.timer.getAverageDelta()
+
+        if self.timer <= 0 then
+            asst.snds.enemy_shot:stop()
+            asst.snds.enemy_shot:play()
+
+            self.timer = self.delay
+            S:insertObject(
+                enms.bullet(
+                    self.x,
+                    self.y,
+                    math.cos(self.bullets.current) * self.bullets.vel,
+                    math.sin(self.bullets.current) * self.bullets.vel,
+                    asst.clrs.green
+                )
+            )
+
+            self.bullets.current = self.bullets.current + (2*math.pi)/self.bullets.divisions
+        end
+
+        if self.life <= 0 then
+            return false
+        end
+
+        ::init::
+
+        return true
+    end
+    function unispin.draw(self)
+        love.graphics.setColor(colors[self.state])
+        if self.init.isInit then love.graphics.setColor(colors["init"]) end
+        love.graphics.setLineWidth(8)
+        love.graphics.circle("line", self.x, self.y, self.r)
+    end
+
+    return unispin
 end
 
 function enms.manager(action, delay)

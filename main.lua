@@ -1,25 +1,46 @@
     -- tools
 local love = require("love")
 local clss = require("tools.clss")
+local push = require("tools.push")
 local utls = require("tools.utils")
     -- logs
 local enms = require("logs.enms")
 local asst = require("logs.asst")
 
 
+-- graphics settings
+love.mouse.setVisible(false)
+
 -- values
+local gameWidth = 250
+local gameHeight = 300
+local scale = 2
 local coords = {
-    ship_initial_x = love.graphics.getWidth() / 2,
-    ship_initial_y = (love.graphics.getHeight() - 100) / 2,
+    ship_initial_x = gameWidth / 2,
+    ship_initial_y = gameHeight / 2,
 }
+
+-- graphics configs
+love.graphics.setLineStyle("rough")
+love.graphics.setDefaultFilter("nearest", "nearest")
 
 math.randomseed(os.clock())
 
 -- structures
-local game = clss.game(coords.ship_initial_x, coords.ship_initial_y)
+local game = clss.game(coords.ship_initial_x, coords.ship_initial_y, gameWidth, gameHeight)
 
 -- löve2d callbacks
 function love.load()
+    push:setupScreen(
+        gameWidth,
+        gameHeight,
+        gameWidth * scale,
+        gameHeight * scale,
+        {
+            pixelperfect = true
+        }
+    )
+
     local i = 1
     game.space:insertManager(
         enms.manager(
@@ -30,7 +51,7 @@ function love.load()
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
                             math.random(6, 12),
-                            1
+                            math.random(5, 15)/10
                         )
                     )
                     s:insertObject(
@@ -38,7 +59,7 @@ function love.load()
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
                             math.random(6, 12),
-                            1
+                            math.random(5, 15)/10
                         )
                     )
                 elseif i == 2 then
@@ -46,11 +67,20 @@ function love.load()
                         enms.polybomb(
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
-                            36,
+                            math.random(30, 40),
                             1
                         )
                     )
                 elseif i == 3 then
+                    s:insertObject(
+                        enms.unispin(
+                            s.data.x + math.random(s.data.w),
+                            s.data.y + math.random(s.data.h),
+                            math.random(8, 14),
+                            math.random(1, 5) / 10
+                        )
+                    )
+                elseif i == 4 then
                     s:insertObject(
                         enms.polyspin(
                             s.data.x + math.random(s.data.w),
@@ -60,7 +90,7 @@ function love.load()
                         )
                     )
                 end
-                i = utls.circular(i + 1, 3)
+                i = utls.circular(i + 1, 4)
             end,
             4
         )
@@ -72,15 +102,33 @@ function love.update()
 end
 
 function love.draw()
+    push:start()
     game:draw()
+    push:finish()
 end
 
 function love.keypressed(key)
+    if key == "up" then
+        game.globaldata.volume = utls.limit(game.globaldata.volume + 0.1, 0, 1)
+    elseif key == "down" then
+        game.globaldata.volume = utls.limit(game.globaldata.volume - 0.1, 0, 1)
+    end
+
     if game.state == "dead" then
         asst.snds.new_game:play()
         asst.snds.new_game:play()
         game:clear()
-    elseif key == "escape" then
+    elseif key == "escape" and (game.state == "paused" or game.state == "playing") then
         game.state = utls.boolToValue(game.state == "paused", "playing", "paused")
     end
+
+    if game.state == "paused" then
+        if key == "m" then
+            game.state = "menu"
+        end
+    end
+end
+
+function love.mousepressed()
+    game:mousepressed()
 end
