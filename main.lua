@@ -40,61 +40,6 @@ function love.load()
             pixelperfect = true
         }
     )
-
-    local i = 1
-    game.space:insertManager(
-        enms.manager(
-            function(s)
-                if i == 1 then
-                    s:insertObject(
-                        enms.polyshooter(
-                            s.data.x + math.random(s.data.w),
-                            s.data.y + math.random(s.data.h),
-                            math.random(6, 12),
-                            math.random(5, 15)/10
-                        )
-                    )
-                    s:insertObject(
-                        enms.polyshooter(
-                            s.data.x + math.random(s.data.w),
-                            s.data.y + math.random(s.data.h),
-                            math.random(6, 12),
-                            math.random(5, 15)/10
-                        )
-                    )
-                elseif i == 2 then
-                    s:insertObject(
-                        enms.polybomb(
-                            s.data.x + math.random(s.data.w),
-                            s.data.y + math.random(s.data.h),
-                            math.random(30, 40),
-                            1
-                        )
-                    )
-                elseif i == 3 then
-                    s:insertObject(
-                        enms.unispin(
-                            s.data.x + math.random(s.data.w),
-                            s.data.y + math.random(s.data.h),
-                            math.random(8, 14),
-                            math.random(1, 5) / 10
-                        )
-                    )
-                elseif i == 4 then
-                    s:insertObject(
-                        enms.polyspin(
-                            s.data.x + math.random(s.data.w),
-                            s.data.y + math.random(s.data.h),
-                            math.random(8, 10),
-                            0.5
-                        )
-                    )
-                end
-                i = utls.circular(i + 1, 4)
-            end,
-            4
-        )
-    )
 end
 
 function love.update()
@@ -117,13 +62,14 @@ function love.keypressed(key)
     if game.state == "dead" then
         asst.snds.new_game:play()
         asst.snds.new_game:play()
-        game:clear()
+        game:reset()
     elseif key == "escape" and (game.state == "paused" or game.state == "playing") then
         game.state = utls.boolToValue(game.state == "paused", "playing", "paused")
     end
 
     if game.state == "paused" then
         if key == "m" then
+            asst.snds.twarzship_dead:play()
             game.state = "menu"
         end
     end

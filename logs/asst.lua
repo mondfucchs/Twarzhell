@@ -31,6 +31,7 @@ asst.snds = {
     new_game = love.audio.newSource("assets/sounds/new_game.wav", "static"),
     explosion = love.audio.newSource("assets/sounds/explosion.wav", "static"),
     gullet = love.audio.newSource("assets/sounds/gullet.wav", "static"),
+    click = love.audio.newSource("assets/sounds/click.wav", "static"),
 }
 
 return asst

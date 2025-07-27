@@ -3,6 +3,7 @@ local love = require("love")
 local utls = require("tools.utils")
     -- logs
 local asst = require("logs.asst")
+local ctdg = require("logs.ctdg")
 
 
     -- classes
@@ -64,6 +65,56 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             love.graphics.print(option, (game.coords.game_width/2)-(asst.fnts.lilfont_a:getWidth(option)/2), y + (game.coords.menub_height/2)-8)
         end
     end
+    local function drawCartridges()
+        love.graphics.setLineWidth(2)
+        love.graphics.setFont(asst.fnts.lilfont_a)
+
+        love.graphics.setColor(0.4, 0.4, 0.4)
+        love.graphics.print("Select a cartridge:", game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("Select a cartridge:")/2, 54)
+
+        for i, cartridge in pairs(ctdg:getCartridges()) do
+            local ctdgdata = ctdg.ctdg[cartridge]()
+            local y = 80 + (i-1)*(game.coords.ctdg_height+8)
+            local color = {1, 1, 1}
+            -- Hovering highlights
+            if utls.checkHover(16, y, game.coords.ctdg_width, game.coords.ctdg_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                color = {0.5, 0.5, 0.5}
+                love.graphics.setColor(color)
+                love.graphics.print("Difficulty: " .. ctdgdata.difficulty .. "/10", 20, y + game.coords.ctdg_height - 18)
+            end
+
+            -- Difficulty
+            love.graphics.setColor(asst.clrs.red)
+            love.graphics.rectangle("fill", 16, y + game.coords.ctdg_height - 4, game.coords.ctdg_width * ctdgdata.difficulty/10, 4)
+            -- Box
+            love.graphics.setColor(color)
+            love.graphics.rectangle("line", 16, y, game.coords.ctdg_width, game.coords.ctdg_height)
+            -- Text
+            love.graphics.print(cartridge, (game.coords.game_width/2)-(asst.fnts.lilfont_a:getWidth(cartridge)/2), y + (game.coords.ctdg_height/2)-8)
+        end
+
+        local backbutton_color = {0.4, 0.4, 0.4}
+        -- Hovering highlights
+        if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+            backbutton_color = {1, 1, 1}
+        end
+
+        -- Drawing backbutton
+        love.graphics.setColor(backbutton_color)
+        love.graphics.rectangle("line", 16, 16, 16, 16)
+        love.graphics.polygon(
+            "fill",
+            28, 20,
+            20, 24,
+            28, 28
+        )
+    end
+    local function loadCartridge(cartridge)
+        asst.snds.new_game:play()
+
+        game:clear()
+        game.space:insertManager(cartridge.manager)
+    end
 
     game.state = "menu" -- "playing"|"dead"|"menu"
     game.menu = {
@@ -75,10 +126,11 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         },
         funcs = {
             function()
-                game.state = "playing"
+                local choosen = ctdg:getCartridges()[math.random(#ctdg:getCartridges())]
+                loadCartridge(ctdg.ctdg[choosen]())
             end,
             function()
-                love.window.close()
+                game.menu.section = "cartridge"
             end,
             function()
                 love.system.openURL("https://github.com/mondfucchs/Twarzhell")
@@ -100,6 +152,8 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         stats_height = 50,
         menub_width = game_width - 32,
         menub_height = (game_height - 80 - (#game.menu.options-1)*8) / #game.menu.options,
+        ctdg_width = game_width - 32,
+        ctdg_height = (game_height - 96 - (#ctdg:getCartridges()-1)*8) / #ctdg:getCartridges(),
     }
 
     game.space = clss.newSpace(game)
@@ -108,6 +162,16 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     function game.clear(self)
         self.twarzship:clear()
         self.space:clear()
+
+        game.state = "playing"
+        game.currentdata = {
+            score = 0,
+            timer = 0
+        }
+    end
+    function game.reset(self)
+        self.twarzship:clear()
+        self.space:reset()
 
         game.state = "playing"
         game.currentdata = {
@@ -171,14 +235,8 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             if self.menu.section == "opt" then
                 -- Options
                 drawOptions()
-            elseif self.menu.section == "config" then
-                love.graphics.setFont(asst.fnts.lilfont_a)
-                local configs = {
-                    "Volume:",
-                }
-                for i, config in pairs(configs) do
-                    love.graphics.print(config, 16, 32*(i-1))
-                end
+            elseif self.menu.section == "cartridge" then
+                drawCartridges()
             end
 
             -- Cursor
@@ -222,7 +280,23 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                 for i, _ in ipairs(self.menu.options) do
                     local y = 64 + (i-1)*(self.coords.menub_height+8)
                     if utls.checkHover(16, y, self.coords.menub_width, self.coords.menub_height, love.mouse.getX()/self.coords.scale, love.mouse.getY()/self.coords.scale) then
+                        asst.snds.click:stop()
+                        asst.snds.click:play()
                         self.menu.funcs[i]()
+                    end
+                end
+            elseif self.menu.section == "cartridge" then
+                -- Backbutton
+                if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                    asst.snds.click:stop()
+                    asst.snds.click:play()
+                    self.menu.section = "opt"
+                end
+                -- Cartridge
+                for i, cartridge in pairs(ctdg:getCartridges()) do
+                    local y = 80 + (i-1)*(game.coords.ctdg_height+8)
+                    if utls.checkHover(16, y, game.coords.ctdg_width, game.coords.ctdg_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                        loadCartridge(ctdg.ctdg[cartridge]())
                     end
                 end
             end
@@ -297,9 +371,15 @@ function clss.newSpace(_game)
 
 
     function space.clear(self)
+        self.managers = {}
         self.objects = {}
         self.bullets = {}
     end
+    function space.reset(self)
+        self.objects = {}
+        self.bullets = {}
+    end
+
 
     local function checkShoot(obj, bullets)
         if obj.hurtable and ((obj.init and not obj.init.isInit) or (not obj.init)) then
