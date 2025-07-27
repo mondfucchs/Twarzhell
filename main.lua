@@ -8,6 +8,9 @@ local enms = require("logs.enms")
 local asst = require("logs.asst")
 
 
+-- graphics settings
+love.mouse.setVisible(false)
+
 -- values
 local gameWidth = 250
 local gameHeight = 300
@@ -38,7 +41,7 @@ function love.load()
         }
     )
 
-    local i = 3
+    local i = 1
     game.space:insertManager(
         enms.manager(
             function(s)
@@ -48,7 +51,7 @@ function love.load()
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
                             math.random(6, 12),
-                            1
+                            math.random(5, 15)/10
                         )
                     )
                     s:insertObject(
@@ -56,7 +59,7 @@ function love.load()
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
                             math.random(6, 12),
-                            1
+                            math.random(5, 15)/10
                         )
                     )
                 elseif i == 2 then
@@ -64,7 +67,7 @@ function love.load()
                         enms.polybomb(
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
-                            36,
+                            math.random(30, 40),
                             1
                         )
                     )
@@ -73,8 +76,8 @@ function love.load()
                         enms.unispin(
                             s.data.x + math.random(s.data.w),
                             s.data.y + math.random(s.data.h),
-                            10,
-                            0.1
+                            math.random(8, 14),
+                            math.random(1, 5) / 10
                         )
                     )
                 elseif i == 4 then
@@ -105,11 +108,27 @@ function love.draw()
 end
 
 function love.keypressed(key)
+    if key == "up" then
+        game.globaldata.volume = utls.limit(game.globaldata.volume + 0.1, 0, 1)
+    elseif key == "down" then
+        game.globaldata.volume = utls.limit(game.globaldata.volume - 0.1, 0, 1)
+    end
+
     if game.state == "dead" then
         asst.snds.new_game:play()
         asst.snds.new_game:play()
         game:clear()
-    elseif key == "escape" then
+    elseif key == "escape" and (game.state == "paused" or game.state == "playing") then
         game.state = utls.boolToValue(game.state == "paused", "playing", "paused")
     end
+
+    if game.state == "paused" then
+        if key == "m" then
+            game.state = "menu"
+        end
+    end
+end
+
+function love.mousepressed()
+    game:mousepressed()
 end

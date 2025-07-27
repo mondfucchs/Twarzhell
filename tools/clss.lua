@@ -45,19 +45,61 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             35
         )
     end
+    local function drawOptions()
+        love.graphics.setLineWidth(2)
+        love.graphics.setFont(asst.fnts.lilfont_a)
 
-    game.coords = {
-        game_width = game_width,
-        game_height = game_height,
-        stats_height = 50
+        for i, option in pairs(game.menu.options) do
+            local y = 64 + (i-1)*(game.coords.menub_height+8)
+            local color = {1, 1, 1}
+            -- Hovering highlights
+            if utls.checkHover(16, y, game.coords.menub_width, game.coords.menub_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                color = {0.5, 0.5, 0.5}
+            end
+
+            -- Box
+            love.graphics.setColor(color)
+            love.graphics.rectangle("line", 16, y, game.coords.menub_width, game.coords.menub_height)
+            -- Text
+            love.graphics.print(option, (game.coords.game_width/2)-(asst.fnts.lilfont_a:getWidth(option)/2), y + (game.coords.menub_height/2)-8)
+        end
+    end
+
+    game.state = "menu" -- "playing"|"dead"|"menu"
+    game.menu = {
+        section = "opt", -- "opt"|"cartridge"
+        options = {
+            "Random Cartridge",
+            "Select Cartridge",
+            "GitHub Repository",
+        },
+        funcs = {
+            function()
+                game.state = "playing"
+            end,
+            function()
+                love.window.close()
+            end,
+            function()
+                love.system.openURL("https://github.com/mondfucchs/Twarzhell")
+            end
+        }
     }
-    game.state = "playing" -- "playing"|"dead"
     game.currentdata = {
         score = 0,
         timer = 0,
     }
     game.globaldata = {
+        volume = 0.1,
         high_score = 0,
+    }
+    game.coords = {
+        scale = 2,
+        game_width = game_width,
+        game_height = game_height,
+        stats_height = 50,
+        menub_width = game_width - 32,
+        menub_height = (game_height - 80 - (#game.menu.options-1)*8) / #game.menu.options,
     }
 
     game.space = clss.newSpace(game)
@@ -75,6 +117,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     end
 
     function game.update(self)
+        love.audio.setVolume(self.globaldata.volume)
         if game.state == "playing" then
             game.currentdata.timer = game.currentdata.timer + love.timer.getAverageDelta()
             if self.twarzship:update() then
@@ -84,12 +127,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                 game.state = "dead"
                 goto dead
             end
-            self.space:update(
-                function(obj)
-                    if (obj.init and not obj.init.isInit) or (not obj.init) then
-                        self.twarzship:interactWithObject(obj)
-                    end
-                end)
+            self.space:update()
 
             ::dead::
         end
@@ -118,13 +156,76 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             love.graphics.print(self.currentdata.score, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 24)
 
             self.twarzship:draw()
+        elseif self.state == "menu" then
+            -- Background
+            love.graphics.setColor(0.025, 0.025, 0.025)
+            love.graphics.rectangle("fill", 0, 0, self.coords.game_width, self.coords.game_height)
+
+            -- Title
+                -- Shadow
+            love.graphics.setColor(asst.clrs.red); love.graphics.setFont(asst.fnts.midfont_a)
+            love.graphics.print("Twarzhell", (self.coords.game_width/2), 32, math.sin(os.clock()-2)/16, 1, 1, (asst.fnts.midfont_a:getWidth("Twarzhell")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))                -- Title
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print("Twarzhell", (self.coords.game_width/2), 32, math.sin(os.clock())/16, 1, 1, (asst.fnts.midfont_a:getWidth("Twarzhell")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))
+
+            if self.menu.section == "opt" then
+                -- Options
+                drawOptions()
+            elseif self.menu.section == "config" then
+                love.graphics.setFont(asst.fnts.lilfont_a)
+                local configs = {
+                    "Volume:",
+                }
+                for i, config in pairs(configs) do
+                    love.graphics.print(config, 16, 32*(i-1))
+                end
+            end
+
+            -- Cursor
+            love.graphics.setColor(love.mouse.isDown(1) and {1, 1, 1} or {0.025, 0.025, 0.025})
+            love.graphics.polygon(
+                "fill",
+                love.mouse.getX()/game.coords.scale - 2, love.mouse.getY()/game.coords.scale - 2,
+                love.mouse.getX()/game.coords.scale + 20, love.mouse.getY()/game.coords.scale + 5,
+                love.mouse.getX()/game.coords.scale + 5, love.mouse.getY()/game.coords.scale + 20
+            )
+            love.graphics.setColor(love.mouse.isDown(1) and {0.025, 0.025, 0.025} or {1, 1, 1})
+            love.graphics.polygon(
+                "fill",
+                love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale,
+                love.mouse.getX()/game.coords.scale + 16, love.mouse.getY()/game.coords.scale + 6,
+                love.mouse.getX()/game.coords.scale + 6, love.mouse.getY()/game.coords.scale + 16
+            )
         end
 
         if game.state == "paused" then
             love.graphics.setColor(0.025, 0.025, 0.025, 0.5)
             love.graphics.rectangle("fill", 0, 0, self.coords.game_width, self.coords.game_height)
+
             love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
             love.graphics.print("PAUSED", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("PAUSED")/2), math.floor(self.coords.game_height)/2 - asst.fnts.lilfont_a:getHeight("PAUSED")/2)
+
+            love.graphics.setColor(0.5, 0.5, 0.5)
+            love.graphics.print("Menu: Press M", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("Menu: Press M")/2), self.coords.game_height - 20)
+
+        end
+
+        if love.keyboard.isDown("up") or love.keyboard.isDown("down") then
+            love.graphics.setColor(asst.clrs.brey); love.graphics.setFont(asst.fnts.lilfont_a)
+            love.graphics.print(utls.roundTo(self.globaldata.volume*100, 10) .. "%", 4, self.coords.game_height-16)
+        end
+    end
+
+    function game.mousepressed(self)
+        if self.state == "menu" then
+            if self.menu.section == "opt" then
+                for i, _ in ipairs(self.menu.options) do
+                    local y = 64 + (i-1)*(self.coords.menub_height+8)
+                    if utls.checkHover(16, y, self.coords.menub_width, self.coords.menub_height, love.mouse.getX()/self.coords.scale, love.mouse.getY()/self.coords.scale) then
+                        self.menu.funcs[i]()
+                    end
+                end
+            end
         end
     end
 
@@ -230,7 +331,11 @@ function clss.newSpace(_game)
             end
 
             checkShoot(object, self.bullets)
-            behavior(object, i)
+            if (object.init and not object.init.isInit) or (not object.init) then
+                if game.twarzship:interactWithObject(object) and object.single then
+                    table.remove(self.objects, i)
+                end
+            end
         end
 
         for i, bullet in pairs(self.bullets) do
@@ -443,10 +548,17 @@ function clss.newTwarzship(s, ix, iy)
         love.graphics.circle("line", self.space.x, self.space.y, self.space.r)
     end
 
+    -- Interacts self with ```obj``` enms object. Returns true if interaction happened
     function twarzship.interactWithObject(self, obj)
         if utls.getDistanceBetweenPoints(self.space.x, self.space.y, obj.x, obj.y) <= self.space.r + obj.r then
-            twarzship.state = "hurt"
-            self:hit(obj.damage)
+            if not obj.positive then
+                self.state = "hurt"
+                self:hit(obj.damage)
+            else
+                asst.snds.gullet:play()
+                self.stats.shield = utls.limit(self.stats.shield + obj.add_shield, 0, self.stats.max_shield)
+            end
+            return true
         end
     end
     function twarzship.clear(self)

@@ -15,8 +15,11 @@ asst.clrs = {
 }
 
 asst.fnts = {
-    lilfont_a = love.graphics.newFont("assets/fonts/kapel.ttf", 16)
+    lilfont_a = love.graphics.newFont("assets/fonts/kapel.ttf", 16),
+    midfont_a = love.graphics.newFont("assets/fonts/kapel.ttf", 32)
 }
+asst.fnts.lilfont_a:setFilter("nearest", "nearest")
+asst.fnts.midfont_a:setFilter("nearest", "nearest")
 
 asst.snds = {
     twarzship_shot = love.audio.newSource("assets/sounds/twarzship_shot.wav", "static"),
@@ -27,6 +30,7 @@ asst.snds = {
     enemy_dead = love.audio.newSource("assets/sounds/enemy_dead.wav", "static"),
     new_game = love.audio.newSource("assets/sounds/new_game.wav", "static"),
     explosion = love.audio.newSource("assets/sounds/explosion.wav", "static"),
+    gullet = love.audio.newSource("assets/sounds/gullet.wav", "static"),
 }
 
 return asst

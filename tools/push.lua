@@ -16,7 +16,7 @@ local windowUpdateMode = love11 and love.window.updateMode or function(width, he
 end
 
 local push = {
-  
+
   defaults = {
     fullscreen = false,
     resizable = false,

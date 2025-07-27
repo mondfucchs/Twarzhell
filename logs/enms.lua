@@ -38,6 +38,43 @@ function enms.bullet(ix, iy, vx, vy, color)
 
     return bullet
 end
+function enms.gullet(ix, iy, vx, vy, color)
+    local gullet = {
+        single = true,
+        positive = true,
+        x = ix,
+        y = iy,
+        vx = vx,
+        vy = vy,
+        c = color or {0.8, 0.1, 0.1},
+        r = 4,
+        add_shield = 20,
+        life = 3,
+        state = "idle"
+    }
+
+    function gullet.update(self)
+        self.x = self.x + self.vx
+        self.y = self.y + self.vy
+        self.life = self.life - love.timer.getAverageDelta()
+
+        if self.life <= 0 then
+            return false
+        end
+
+        return true
+    end
+
+    function gullet.draw(self)
+        love.graphics.setColor(self.c[1], self.c[2], self.c[3], self.life)
+        love.graphics.circle("fill", self.x, self.y, self.r + 2)
+        love.graphics.setColor(1, 1, 1, self.life)
+        love.graphics.circle("fill", self.x, self.y, self.r)
+    end
+
+    return gullet
+end
+
 function enms.polyshooter(x, y, bullets, delay)
     local colors = {
         idle = asst.clrs.red,
@@ -84,14 +121,27 @@ function enms.polyshooter(x, y, bullets, delay)
             asst.snds.enemy_shot:play()
             for i = 0, (2 * math.pi)-.1, (2 * math.pi) / self.bullets.amount do
                 self.timer = self.delay
-                S:insertObject(
-                    enms.bullet(
-                        self.x,
-                        self.y,
-                        math.cos(i) * self.bullets.vel,
-                        math.sin(i) * self.bullets.vel
+
+                local bullettype = math.random(1, 10)
+                if bullettype == 1 then
+                    S:insertObject(
+                        enms.gullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel
+                        )
                     )
-                )
+                else
+                    S:insertObject(
+                        enms.bullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel
+                        )
+                    )
+                end
             end
         end
 
@@ -150,15 +200,29 @@ function enms.polybomb(x, y, bullets, delay)
             asst.snds.explosion:play()
             for i = 0, (2 * math.pi)-.1, (2 * math.pi) / self.bullets.amount do
                 self.timer = self.delay
-                S:insertObject(
-                    enms.bullet(
-                        self.x,
-                        self.y,
-                        math.cos(i) * self.bullets.vel,
-                        math.sin(i) * self.bullets.vel,
-                        {240/255, 104/255, 31/255}
+
+                local bullettype = math.random(1, 10)
+                if bullettype == 1 then
+                    S:insertObject(
+                        enms.gullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel,
+                            {240/255, 104/255, 31/255}
+                        )
                     )
-                )
+                else
+                    S:insertObject(
+                        enms.bullet(
+                            self.x,
+                            self.y,
+                            math.cos(i) * self.bullets.vel,
+                            math.sin(i) * self.bullets.vel,
+                            {240/255, 104/255, 31/255}
+                        )
+                    )
+                end
             end
             return false
         end
@@ -234,15 +298,29 @@ function enms.polyspin(x, y, bullets, delay)
             asst.snds.enemy_shot:play()
             for i = 0, (2 * math.pi)-.1, (2 * math.pi) / self.bullets.amount do
                 self.timer = self.delay
-                S:insertObject(
-                    enms.bullet(
-                        self.x,
-                        self.y,
-                        math.cos(self.ltime*4 + i) * self.bullets.vel,
-                        math.sin(self.ltime*4 + i) * self.bullets.vel,
-                        {240/255, 160/255, 31/255}
+
+                local bullettype = math.random(1, 20)
+                if bullettype == 1 then
+                    S:insertObject(
+                        enms.gullet(
+                            self.x,
+                            self.y,
+                            math.cos(self.ltime*4 + i) * self.bullets.vel,
+                            math.sin(self.ltime*4 + i) * self.bullets.vel,
+                            {240/255, 160/255, 31/255}
+                        )
                     )
-                )
+                else
+                    S:insertObject(
+                        enms.bullet(
+                            self.x,
+                            self.y,
+                            math.cos(self.ltime*4 + i) * self.bullets.vel,
+                            math.sin(self.ltime*4 + i) * self.bullets.vel,
+                            {240/255, 160/255, 31/255}
+                        )
+                    )
+                end
             end
         end
 
