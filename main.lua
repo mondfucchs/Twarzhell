@@ -70,6 +70,7 @@ function love.keypressed(key)
     if game.state == "paused" then
         if key == "m" then
             asst.snds.twarzship_dead:play()
+            game:clear()
             game.state = "menu"
         end
     end

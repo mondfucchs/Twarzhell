@@ -19,7 +19,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.stats_height)
 
             -- empty bars
-        love.graphics.setColor(0, 0, 0)
+        love.graphics.setColor(game.background_color)
         love.graphics.rectangle("fill", 8, 8, game.coords.game_width-16, 16)
         love.graphics.rectangle("fill", 8, 24, game.coords.game_width-16, 12)
 
@@ -36,7 +36,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         love.graphics.print(game.twarzship.stats.shield, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(game.twarzship.stats.shield)/2), 22)
 
             -- score
-        love.graphics.setColor(0.025, 0.025, 0.025)
+        love.graphics.setColor(game.background_color)
         love.graphics.print(game.currentdata.score, 8, 35)
 
             -- timer
@@ -72,7 +72,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         love.graphics.setColor(0.4, 0.4, 0.4)
         love.graphics.print("Select a cartridge:", game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("Select a cartridge:")/2, 54)
 
-        for i, cartridge in pairs(ctdg:getCartridges()) do
+        for i, cartridge in pairs(ctdg.getCartridges()) do
             local ctdgdata = ctdg.ctdg[cartridge]()
             local y = 80 + (i-1)*(game.coords.ctdg_height+8)
             local color = {1, 1, 1}
@@ -113,10 +113,12 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         asst.snds.new_game:play()
 
         game:clear()
+        cartridge.influence(game)
         game.space:insertManager(cartridge.manager)
     end
 
     game.state = "menu" -- "playing"|"dead"|"menu"
+    game.background_color = {0.025, 0.025, 0.025}
     game.menu = {
         section = "opt", -- "opt"|"cartridge"
         options = {
@@ -126,7 +128,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         },
         funcs = {
             function()
-                local choosen = ctdg:getCartridges()[math.random(#ctdg:getCartridges())]
+                local choosen = ctdg.getCartridges()[math.random(#ctdg.getCartridges())]
                 loadCartridge(ctdg.ctdg[choosen]())
             end,
             function()
@@ -153,17 +155,24 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         menub_width = game_width - 32,
         menub_height = (game_height - 80 - (#game.menu.options-1)*8) / #game.menu.options,
         ctdg_width = game_width - 32,
-        ctdg_height = (game_height - 96 - (#ctdg:getCartridges()-1)*8) / #ctdg:getCartridges(),
+        ctdg_height = (game_height - 96 - (#ctdg.getCartridges()-1)*8) / #ctdg.getCartridges(),
     }
 
     game.space = clss.newSpace(game)
     game.twarzship = clss.newTwarzship(game.space, twarzship_x, twarzship_y)
+    game.space.twarzship = game.twarzship
 
+    function game.setDefaultConfigs(self)
+        self.background_color = {0.025, 0.025, 0.025}
+        self.twarzship:setDefaultConfigs()
+    end
     function game.clear(self)
+        self:setDefaultConfigs()
         self.twarzship:clear()
         self.space:clear()
 
         game.state = "playing"
+        game.background_color = {0.025, 0.025, 0.025}
         game.currentdata = {
             score = 0,
             timer = 0
@@ -199,7 +208,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     function game.draw(self)
         if self.state == "playing" or self.state == "paused" then
             -- Background
-            love.graphics.setColor(0.025, 0.025, 0.025)
+            love.graphics.setColor(game.background_color)
             love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
             self.space:draw()
@@ -216,7 +225,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             -- Score
             love.graphics.setColor(0.5, 0.5, 0.5)
             love.graphics.print(self.globaldata.high_score, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.globaldata.high_score)/2), 16)
-            love.graphics.setColor(0.025, 0.025, 0.025)
+            love.graphics.setColor(game.background_color)
             love.graphics.print(self.currentdata.score, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 24)
 
             self.twarzship:draw()
@@ -293,7 +302,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                     self.menu.section = "opt"
                 end
                 -- Cartridge
-                for i, cartridge in pairs(ctdg:getCartridges()) do
+                for i, cartridge in pairs(ctdg.getCartridges()) do
                     local y = 80 + (i-1)*(game.coords.ctdg_height+8)
                     if utls.checkHover(16, y, game.coords.ctdg_width, game.coords.ctdg_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
                         loadCartridge(ctdg.ctdg[cartridge]())
@@ -318,10 +327,11 @@ function clss.newSpace(_game)
             w = 250,
             h = 250,
             x = 0,
-            y = 50 --magic numbers go brrr
+            y = 50, --magic numbers go brrr
         }
     }
 
+    space.twarzship = {}
     local game = _game
 
     -- Gets space's objects
@@ -435,7 +445,7 @@ function clss.newSpace(_game)
 
     return space
 end
-function clss.newBullet(x, y, vx, vy, dmg)
+function clss.newBullet(x, y, vx, vy, dmg, clr)
     local bullet = {
         x = x,
         y = y,
@@ -456,9 +466,8 @@ function clss.newBullet(x, y, vx, vy, dmg)
         end
         return true
     end
-
     function bullet.draw(self)
-        love.graphics.setColor(asst.clrs.brey[1], asst.clrs.brey[2], asst.clrs.brey[3], self.life / 2)
+        love.graphics.setColor(clr[1], clr[2], clr[3], self.life / 2)
         love.graphics.circle("fill", self.x, self.y, self.r)
         love.graphics.setColor(1, 1, 1)
     end
@@ -479,10 +488,7 @@ function clss.newTwarzship(s, ix, iy)
 
             vel_x = 0,
             vel_y = 0,
-            vel_max = 4,
-
-            acc = 0.25,
-            dcc = 0.125,
+            vel   = 3,
         },
 
         stats = {
@@ -519,6 +525,10 @@ function clss.newTwarzship(s, ix, iy)
         )
     end
     function twarzship.processMovement(self)
+
+        self.space.vel_x = 0
+        self.space.vel_y = 0
+
         -- Checking keys
         local movement = {x = 0, y = 0}
         if love.keyboard.isDown("a") then
@@ -534,33 +544,23 @@ function clss.newTwarzship(s, ix, iy)
             movement.y = 1
         end
 
-        -- Accelerating
-        self.space.vel_x = utls.limit(
-            self.space.vel_x + movement.x * self.space.acc,
-            -self.space.vel_max,
-            self.space.vel_max
-        )
-        self.space.vel_y = utls.limit(
-            self.space.vel_y + movement.y * self.space.acc,
-            -self.space.vel_max,
-            self.space.vel_max
-        )
-
-        -- Deaccelerating
-        if movement.x == 0 then
-            self.space.vel_x = utls.getSign(self.space.vel_x) * utls.limit(
-                math.abs(self.space.vel_x) - self.space.dcc,
-                0
-            )
-        end
-        if movement.y == 0 then
-            self.space.vel_y = utls.getSign(self.space.vel_y) * utls.limit(
-                math.abs(self.space.vel_y) - self.space.dcc,
-                0
-            )
-        end
+        self.space.vel_x = self.space.vel * movement.x
+        self.space.vel_y = self.space.vel * movement.y
 
         self:move()
+    end
+
+    function twarzship.heal(self, shield)
+        asst.snds.twarzship_heal:play()
+        self.stats.shield = utls.limit(self.stats.shield + shield, 0, self.stats.max_shield)
+    end
+    function twarzship.hit(self, damage)
+        asst.snds.twarzship_hurt:play()
+        if self.stats.shield > 0 then
+            self.stats.shield = utls.limit(self.stats.shield - damage, 0, self.stats.max_shield)
+        else
+            self.stats.health = utls.limit(self.stats.health - damage, 0, self.stats.max_health)
+        end
     end
 
     function twarzship.shot(self, x, y)
@@ -572,17 +572,10 @@ function clss.newTwarzship(s, ix, iy)
                 self.space.y,
                 self.shooting.bullet_velocity * x,
                 self.shooting.bullet_velocity * y,
-                self.shooting.bullet_damage
+                self.shooting.bullet_damage,
+                self.colors.idle
             )
         )
-    end
-    function twarzship.hit(self, damage)
-        asst.snds.twarzship_hurt:play()
-        if self.stats.shield > 0 then
-            self.stats.shield = utls.limit(self.stats.shield - damage, 0, self.stats.max_shield)
-        else
-            self.stats.health = utls.limit(self.stats.health - damage, 0, self.stats.max_health)
-        end
     end
     function twarzship.processShooting(self)
         local shot_dir = {x = 0, y = 0}
@@ -631,15 +624,14 @@ function clss.newTwarzship(s, ix, iy)
     -- Interacts self with ```obj``` enms object. Returns true if interaction happened
     function twarzship.interactWithObject(self, obj)
         if utls.getDistanceBetweenPoints(self.space.x, self.space.y, obj.x, obj.y) <= self.space.r + obj.r then
-            if not obj.positive then
-                self.state = "hurt"
-                self:hit(obj.damage)
-            else
-                asst.snds.gullet:play()
-                self.stats.shield = utls.limit(self.stats.shield + obj.add_shield, 0, self.stats.max_shield)
-            end
+            obj:interact(self)
             return true
         end
+    end
+    function twarzship.setDefaultConfigs(self)
+        self.stats.max_health = 100
+        self.stats.max_shield = 50
+        self.colors.idle = asst.clrs.brey
     end
     function twarzship.clear(self)
         self.space.x = ix

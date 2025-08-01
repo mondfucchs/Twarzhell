@@ -6,7 +6,9 @@ local asst = {}
 
 asst.clrs = {
     red = {0.8, 0.1, 0.1},
+    bley = {81/255, 157/255, 232/255},
     orange = {240/255, 160/255, 31/255},
+    lgreen = {90/255, 209/255, 138/255},
     green = {181/255, 232/255, 39/255},
     brey = {0.5, 0.5, 0.75},
     grey = {0.5, 0.5, 0.55},
@@ -25,12 +27,12 @@ asst.snds = {
     twarzship_shot = love.audio.newSource("assets/sounds/twarzship_shot.wav", "static"),
     twarzship_hurt = love.audio.newSource("assets/sounds/twarzship_hurt.wav", "static"),
     twarzship_dead = love.audio.newSource("assets/sounds/twarzship_dead.wav", "static"),
+    twarzship_heal = love.audio.newSource("assets/sounds/gullet.wav", "static"),
     enemy_shot = love.audio.newSource("assets/sounds/enemy_shot.wav", "static"),
     enemy_hurt = love.audio.newSource("assets/sounds/enemy_hurt.wav", "static"),
     enemy_dead = love.audio.newSource("assets/sounds/enemy_dead.wav", "static"),
     new_game = love.audio.newSource("assets/sounds/new_game.wav", "static"),
     explosion = love.audio.newSource("assets/sounds/explosion.wav", "static"),
-    gullet = love.audio.newSource("assets/sounds/gullet.wav", "static"),
     click = love.audio.newSource("assets/sounds/click.wav", "static"),
 }
 
