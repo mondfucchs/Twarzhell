@@ -7,6 +7,11 @@ local enms = require("logs.enms")
 
     -- cartridges
 local ctdg = {}
+ctdg.scores = {
+    common = 0,
+    slowdeath = 0,
+    tiny = 0
+}
 ctdg.ctdg = {}
 
 function ctdg.ctdg.common()
@@ -52,7 +57,7 @@ function ctdg.ctdg.common()
             else
                 s:insertObject(enms.unispin(
                     s.data.x + math.random(s.data.w),
-                    s.data.x + math.random(s.data.h),
+                    s.data.y + math.random(s.data.h),
                     math.random(10, 20),
                     math.random(1, 4) / 10
                 ))
@@ -68,8 +73,8 @@ function ctdg.ctdg.common()
     }
 
     return {
+        name = "common",
         difficulty = 5,
-        high_score = 0,
         manager = enms.manager(
             function(s)
                 behavior[i](s)
@@ -80,173 +85,138 @@ function ctdg.ctdg.common()
         influence = function() end
     }
 end
-function ctdg.ctdg.spinhell()
+function ctdg.ctdg.slowdeath()
     local i = 1
     local behavior = {
+        function(s)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(20, 30),
+                math.random(15, 25) / 10
+            ))
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(20, 30),
+                math.random(15, 25) / 10
+            ))
+        end,
         function(s)
             s:insertObject(enms.polyspin(
                 s.data.x + math.random(s.data.w),
                 s.data.y + math.random(s.data.h),
-                math.random(8, 10),
-                math.random(3, 8) / 10
+                math.random(18, 26),
+                math.random(15, 25) / 10
             ))
         end,
         function(s)
             s:insertObject(enms.polybomb(
                 s.data.x + math.random(s.data.w),
                 s.data.y + math.random(s.data.h),
-                math.random(25, 30),
-                math.random(5, 10) / 10
+                math.random(45, 50),
+                math.random(25, 35) / 10
             ))
-            s:insertObject(enms.polybomb(
+            s:insertObject(enms.uniaim(
                 s.data.x + math.random(s.data.w),
                 s.data.y + math.random(s.data.h),
-                math.random(25, 30),
-                math.random(5, 10) / 10
+                math.random(15, 20) / 10
             ))
         end,
-        function(s)
-            s:insertObject(enms.unispin(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
-                math.random(10, 15),
-                math.random(1, 2) / 10
-            ))
-        end
     }
 
     return {
-        difficulty = 7,
-        high_score = 0,
+        name = "slowdeath",
+        difficulty = 6,
         manager = enms.manager(
             function(s)
                 behavior[i](s)
                 i = utls.circular(i + 1, 3)
             end,
-            3
+            4
         ),
         influence = function(g)
-            g.background_color = {0.05, 0.05, 0.025}
-            g.twarzship.stats.max_health = 75
-            g.twarzship.stats.health = 75
-            g.twarzship.colors.idle = asst.clrs.mdrey
-        end
-    }
-end
-function ctdg.ctdg.YOU()
-    local i = 1
-    local behavior = {
-        function(s)
-            s:insertObject(enms.uniaim(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
-                math.random(4, 6) / 10
-            ))
-        end
-    }
-
-    return {
-        difficulty = 8,
-        high_score = 0,
-        manager = enms.manager(
-            function(s)
-                behavior[i](s)
-                i = utls.circular(i + 1, 1)
-            end,
-            5
-        ),
-        influence = function(g)
-            g.background_color = {0.025, 0.025, 0.075}
-            g.twarzship.stats.max_health = 75
-            g.twarzship.stats.health = 75
-            g.twarzship.stats.max_shield = 75
-            g.twarzship.stats.health = 75
+            g.background_color = {0.025, 0.025, 0.05}
+            g.twarzship.stats.max_health = 125
+            g.twarzship.stats.health = 125
+            g.twarzship.space.vel = 1.5
+            g.twarzship.shooting.bullet_velocity = 2
             g.twarzship.colors.idle = asst.clrs.bley
         end
     }
 end
-function ctdg.ctdg.greatmess()
+function ctdg.ctdg.tiny()
     local i = 1
     local behavior = {
+        function(s)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(20, 30),
+                math.random(5, 15) / 10
+            ))
+        end,
         function(s)
             s:insertObject(enms.polyspin(
                 s.data.x + math.random(s.data.w),
                 s.data.y + math.random(s.data.h),
-                math.random(8, 10),
-                math.random(3, 8) / 10
+                math.random(8, 12),
+                math.random(15, 20) / 10
             ))
         end,
         function(s)
             s:insertObject(enms.polybomb(
                 s.data.x + math.random(s.data.w),
                 s.data.y + math.random(s.data.h),
-                math.random(25, 30),
-                math.random(5, 10) / 10
+                math.random(30, 40),
+                math.random(5, 15) / 10
             ))
-            s:insertObject(enms.polybomb(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
-                math.random(25, 30),
-                math.random(5, 10) / 10
-            ))
-        end,
-        function(s)
             s:insertObject(enms.unispin(
                 s.data.x + math.random(s.data.w),
                 s.data.y + math.random(s.data.h),
-                math.random(10, 15),
-                math.random(1, 2) / 10
+                math.random(20, 30),
+                math.random(5, 15) / 10
             ))
-        end
-    }
-
-    return {
-        difficulty = 7,
-        high_score = 0,
-        manager = enms.manager(
-            function(s)
-                behavior[i](s)
-                i = utls.circular(i + 1, 3)
-            end,
-            3
-        ),
-        influence = function(g)
-            g.background_color = {0.05, 0.05, 0.025}
-            g.twarzship.stats.max_health = 75
-            g.twarzship.stats.health = 75
-            g.twarzship.colors.idle = asst.clrs.mdrey
-        end
-    }
-end
-function ctdg.ctdg.explosive()
-    local i = 1
-    local behavior = {
+        end,
         function(s)
             s:insertObject(enms.uniaim(
                 s.data.x + math.random(s.data.w),
                 s.data.y + math.random(s.data.h),
-                math.random(4, 6) / 10
+                math.random(10, 15) / 10
+            ))
+            s:insertObject(enms.uniaim(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(10, 15) / 10
             ))
         end
     }
 
     return {
-        difficulty = 8,
-        high_score = 0,
+        name = "tiny",
+        difficulty = 9,
         manager = enms.manager(
             function(s)
                 behavior[i](s)
-                i = utls.circular(i + 1, 1)
+                i = utls.circular(i + 1, 4)
             end,
-            5
+            6
         ),
         influence = function(g)
-            g.background_color = {0.025, 0.025, 0.075}
-            g.twarzship.stats.max_health = 75
-            g.twarzship.stats.health = 75
-            g.twarzship.stats.max_shield = 75
-            g.twarzship.stats.health = 75
-            g.twarzship.colors.idle = asst.clrs.bley
+            g.background_color = {0.075, 0.05, 0.025}
+            g.twarzship.stats.max_health = 50
+            g.twarzship.stats.health = 50
+
+            g.twarzship.stats.max_shield = 50
+            g.twarzship.stats.shield = 50
+
+            g.twarzship.space.vel = 3.5
+            g.twarzship.space.r = 6
+
+            g.twarzship.shooting.bullet_delay = 0.125*2
+            g.twarzship.shooting.bullet_damage = 0.125/4
+
+            g.twarzship.colors.idle = asst.clrs.orange
         end
     }
 end
@@ -254,11 +224,16 @@ end
 function ctdg.getCartridges()
     return {
         "common",
-        "spinhell",
-        "YOU",
-        "greatmess",
-        "explosive"
+        "slowdeath",
+        "tiny"
     }
+end
+
+function ctdg.getScores(self)
+    return self.scores
+end
+function ctdg.setScore(self, cartridge, score)
+    self.scores[cartridge] = score
 end
 
 return ctdg

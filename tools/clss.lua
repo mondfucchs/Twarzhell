@@ -110,11 +110,13 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         )
     end
     local function loadCartridge(cartridge)
+        game:clear()
         asst.snds.new_game:play()
 
-        game:clear()
         cartridge.influence(game)
         game.space:insertManager(cartridge.manager)
+
+        game.currentdata.cartridge = cartridge.name
     end
 
     game.state = "menu" -- "playing"|"dead"|"menu"
@@ -140,13 +142,12 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         }
     }
     game.currentdata = {
+        cartridge = "",
+        new_hiscore = false,
         score = 0,
         timer = 0,
     }
-    game.globaldata = {
-        volume = 0.1,
-        high_score = 0,
-    }
+    game.volume = 0.1
     game.coords = {
         scale = 2,
         game_width = game_width,
@@ -179,27 +180,36 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         }
     end
     function game.reset(self)
+        self.save()
         self.twarzship:clear()
         self.space:reset()
 
         game.state = "playing"
+
+        local cartridge = game.currentdata.cartridge
         game.currentdata = {
+            cartridge = cartridge,
+            new_hiscore = false,
             score = 0,
             timer = 0
         }
     end
 
     function game.update(self)
-        love.audio.setVolume(self.globaldata.volume)
+        love.audio.setVolume(self.volume)
         if game.state == "playing" then
-            game.currentdata.timer = game.currentdata.timer + love.timer.getAverageDelta()
+            self.currentdata.timer = self.currentdata.timer + love.timer.getAverageDelta()
             if self.twarzship:update() then
-                if game.currentdata.score > game.globaldata.high_score then
-                    game.globaldata.high_score = game.currentdata.score
+
+                if self.currentdata.score > ctdg:getScores()[self.currentdata.cartridge] then
+                    self.currentdata.new_hiscore = true
+                    ctdg:setScore(self.currentdata.cartridge, self.currentdata.score)
                 end
-                game.state = "dead"
+
+                self.state = "dead"
                 goto dead
             end
+
             self.space:update()
 
             ::dead::
@@ -214,21 +224,23 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             self.space:draw()
             self.twarzship:draw()
             drawHUD()
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.print(#self.space.objects, 16, 96)
 
         elseif self.state == "dead" then
             -- Background
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.game_height)
+            love.graphics.setColor(not self.currentdata.new_hiscore and {1, 1, 1} or self.twarzship.colors.idle)
+            love.graphics.rectangle("fill", 0, 0, self.coords.game_width, self.coords.game_height)
 
             -- Score
-            love.graphics.setColor(0.5, 0.5, 0.5)
-            love.graphics.print(self.globaldata.high_score, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.globaldata.high_score)/2), 16)
-            love.graphics.setColor(game.background_color)
-            love.graphics.print(self.currentdata.score, math.floor(game.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 24)
+            love.graphics.setColor(self.currentdata.new_hiscore and {1, 1, 1} or {0.5, 0.5, 0.5})
+            love.graphics.print(ctdg:getScores()[self.currentdata.cartridge], math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(ctdg:getScores()[game.currentdata.cartridge])/2), 16)
+            love.graphics.setColor(self.currentdata.new_hiscore and {1, 1, 1} or self.background_color)
+            love.graphics.print(self.currentdata.score, math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 24)
 
-            self.twarzship:draw()
+            if self.currentdata.new_hiscore then
+                love.graphics.print("New HIscore!", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("New HIscore!")/2), self.coords.game_height / 2)
+            end
+
+            self.twarzship:draw(self.currentdata.new_hiscore and {1, 1, 1})
         elseif self.state == "menu" then
             -- Background
             love.graphics.setColor(0.025, 0.025, 0.025)
@@ -277,12 +289,14 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
 
         end
 
-        if love.keyboard.isDown("up") or love.keyboard.isDown("down") then
+        if love.keyboard.isDown("kp8") or love.keyboard.isDown("kp2") then
             love.graphics.setColor(asst.clrs.brey); love.graphics.setFont(asst.fnts.lilfont_a)
-            love.graphics.print(utls.roundTo(self.globaldata.volume*100, 10) .. "%", 4, self.coords.game_height-16)
+            love.graphics.print(utls.roundTo(self.volume*100, 10) .. "% volume", 4, self.coords.game_height-16)
         end
-    end
 
+            love.graphics.setColor(1, 0, 0)
+            love.graphics.print(tostring(ctdg:getScores()[game.currentdata.cartridge]), 16, 96)
+    end
     function game.mousepressed(self)
         if self.state == "menu" then
             if self.menu.section == "opt" then
@@ -309,6 +323,31 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                     end
                 end
             end
+        end
+    end
+
+    function game.save()
+        local savefile = io.open("logs/score.txt", "w")
+        local scores = ctdg:getScores()
+
+        if savefile then
+            for _, cartridge in ipairs(ctdg:getCartridges()) do
+                savefile:write(cartridge, ":", scores[cartridge], "\n")
+            end
+
+            savefile:close()
+        end
+    end
+
+    function game.load()
+        local savefile = io.open("logs/score.txt", "r")
+
+        if savefile then
+            for line in savefile:lines("l") do
+                ctdg:setScore(string.match(line, "(%w+):"), tonumber(string.match(line, ":(%d+)")))
+            end
+
+            savefile:close()
         end
     end
 
@@ -403,7 +442,7 @@ function clss.newSpace(_game)
             end
         end
     end
-    function space.update(self, behavior)
+    function space.update(self)
         for i, manager in pairs(self.managers) do
             if not manager:update(self) then
                 table.remove(self.managers, i)
@@ -580,15 +619,15 @@ function clss.newTwarzship(s, ix, iy)
     function twarzship.processShooting(self)
         local shot_dir = {x = 0, y = 0}
 
-        if love.keyboard.isDown("delete") and self.shooting.bullet_timer <= 0 then
+        if (love.keyboard.isDown("delete") or love.keyboard.isDown("left")) and self.shooting.bullet_timer <= 0 then
             shot_dir.x = -1
-        elseif love.keyboard.isDown("pagedown") and self.shooting.bullet_timer <= 0 then
+        elseif (love.keyboard.isDown("pagedown")  or love.keyboard.isDown("right")) and self.shooting.bullet_timer <= 0 then
             shot_dir.x = 1
         end
 
-        if love.keyboard.isDown("home") and self.shooting.bullet_timer <= 0 then
+        if (love.keyboard.isDown("home")  or love.keyboard.isDown("up")) and self.shooting.bullet_timer <= 0 then
             shot_dir.y = -1
-        elseif love.keyboard.isDown("end") and self.shooting.bullet_timer <= 0 then
+        elseif (love.keyboard.isDown("end")  or love.keyboard.isDown("down")) and self.shooting.bullet_timer <= 0 then
             shot_dir.y = 1
         end
 
@@ -611,8 +650,8 @@ function clss.newTwarzship(s, ix, iy)
         self:processMovement()
         self:processShooting()
     end
-    function twarzship.draw(self)
-        love.graphics.setColor(self.colors[self.state])
+    function twarzship.draw(self, opt_color)
+        love.graphics.setColor(opt_color or self.colors[self.state])
         love.graphics.setLineWidth(
             self.state == "dead"
             and 2
@@ -631,6 +670,13 @@ function clss.newTwarzship(s, ix, iy)
     function twarzship.setDefaultConfigs(self)
         self.stats.max_health = 100
         self.stats.max_shield = 50
+
+        self.shooting.bullet_damage = 0.125
+        self.shooting.bullet_delay = 0.125
+        self.shooting.bullet_velocity = 4
+        self.space.r = 8
+        self.space.vel = 3
+
         self.colors.idle = asst.clrs.brey
     end
     function twarzship.clear(self)

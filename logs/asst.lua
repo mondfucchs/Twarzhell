@@ -24,6 +24,7 @@ asst.fnts.lilfont_a:setFilter("nearest", "nearest")
 asst.fnts.midfont_a:setFilter("nearest", "nearest")
 
 asst.snds = {
+    -- sfx
     twarzship_shot = love.audio.newSource("assets/sounds/twarzship_shot.wav", "static"),
     twarzship_hurt = love.audio.newSource("assets/sounds/twarzship_hurt.wav", "static"),
     twarzship_dead = love.audio.newSource("assets/sounds/twarzship_dead.wav", "static"),

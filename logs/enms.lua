@@ -1,5 +1,6 @@
     -- tools
 local love = require("love")
+local utls = require("tools.utils")
     -- logs
 local asst = require("logs.asst")
 
@@ -151,6 +152,7 @@ function enms.polyshooter(x, y, bullets, delay)
         love.graphics.setColor(colors[self.state])
         if self.init.isInit then love.graphics.setColor(colors["init"]) end
         love.graphics.setLineWidth(6)
+
         love.graphics.circle("line", self.x, self.y, self.r)
     end
     polyshooter.interact = defaultInteraction()
@@ -221,9 +223,9 @@ function enms.polybomb(x, y, bullets, delay)
     end
     function polybomb.draw(self)
         love.graphics.setColor(
-            {240/255 + (1 - self.timer),
-            104/255 + (1 - self.timer),
-            31/255 + (1 - self.timer), self.life}
+            {240/255 + utls.limit(1 - self.timer, 0),
+            104/255 + utls.limit(1 - self.timer, 0),
+            31/255 + utls.limit(1 - self.timer, 0), self.life}
         )
         if self.init.isInit then love.graphics.setColor{240/255, 104/255, 31/255, 0.5} end
         love.graphics.setLineWidth(5)

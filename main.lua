@@ -40,6 +40,8 @@ function love.load()
             pixelperfect = true
         }
     )
+
+    game:load()
 end
 
 function love.update()
@@ -53,16 +55,17 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if key == "up" then
-        game.globaldata.volume = utls.limit(game.globaldata.volume + 0.1, 0, 1)
-    elseif key == "down" then
-        game.globaldata.volume = utls.limit(game.globaldata.volume - 0.1, 0, 1)
+    if key == "kp8" then
+        game.volume = utls.limit(game.volume + 0.1, 0, 1)
+    elseif key == "kp2" then
+        game.volume = utls.limit(game.volume - 0.1, 0, 1)
     end
 
-    if game.state == "dead" then
-        asst.snds.new_game:play()
+    if game.state == "dead" and key == "space" then
+
         asst.snds.new_game:play()
         game:reset()
+
     elseif key == "escape" and (game.state == "paused" or game.state == "playing") then
         game.state = utls.boolToValue(game.state == "paused", "playing", "paused")
     end
