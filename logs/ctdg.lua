@@ -10,6 +10,7 @@ local ctdg = {}
 ctdg.scores = {
     common = 0,
     slowdeath = 0,
+    hordes = 0,
     tiny = 0
 }
 ctdg.ctdg = {}
@@ -74,6 +75,7 @@ function ctdg.ctdg.common()
 
     return {
         name = "common",
+        desc = "Intervals of five seconds, simplest mode.",
         difficulty = 5,
         manager = enms.manager(
             function(s)
@@ -127,6 +129,7 @@ function ctdg.ctdg.slowdeath()
 
     return {
         name = "slowdeath",
+        desc = "Slower enemies and more bullets.",
         difficulty = 6,
         manager = enms.manager(
             function(s)
@@ -142,6 +145,79 @@ function ctdg.ctdg.slowdeath()
             g.twarzship.space.vel = 1.5
             g.twarzship.shooting.bullet_velocity = 2
             g.twarzship.colors.idle = asst.clrs.bley
+        end
+    }
+end
+function ctdg.ctdg.hordes()
+    local objects = {
+        function(s)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(15, 20),
+                math.random(5, 10) / 10
+            ))
+        end,
+        function(s)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(15, 20),
+                math.random(5, 10) / 10
+            ))
+        end,
+        function(s)
+            s:insertObject(enms.polyspin(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(10, 12),
+                math.random(4, 10) / 10
+            ))
+        end,
+        function(s)
+            s:insertObject(enms.polybomb(
+                s.data.x + math.random(s.data.w),
+                s.data.y + math.random(s.data.h),
+                math.random(20, 25),
+                math.random(6, 12) / 10
+            ))
+        end,
+        function (s)
+            s:insertObject(enms.unispin(
+                s.data.x + s.data.w / 2,
+                s.data.y + s.data.h / 2,
+                math.random(15, 25),
+                math.random(1, 4) / 10
+            ))
+        end
+    }
+
+    return {
+        name = "hordes",
+        desc = "Large intervals, several enemies appear at once.",
+        difficulty = 7,
+        manager = enms.manager(
+            function(s)
+                for i = 1, 5, 1 do
+                    local j = math.random(#objects)
+                    objects[j](s)
+                end
+            end,
+            10
+        ),
+        influence = function(g)
+            g.background_color = {0.005, 0.005, 0.0075}
+
+            g.twarzship.stats.max_shield = 100
+            g.twarzship.stats.shield = 100
+
+            g.twarzship.space.r = 7
+
+            g.twarzship.space.vel = 2
+            g.twarzship.shooting.bullet_delay = 0.125/2
+            g.twarzship.shooting.bullet_damage = 0.125
+
+            g.twarzship.colors.idle = asst.clrs.drey
         end
     }
 end
@@ -194,6 +270,7 @@ function ctdg.ctdg.tiny()
 
     return {
         name = "tiny",
+        desc = "Ship has way less damage, health, and shield.",
         difficulty = 9,
         manager = enms.manager(
             function(s)
@@ -213,7 +290,7 @@ function ctdg.ctdg.tiny()
             g.twarzship.space.vel = 3.5
             g.twarzship.space.r = 6
 
-            g.twarzship.shooting.bullet_delay = 0.125*2
+            g.twarzship.shooting.bullet_delay = 0.125
             g.twarzship.shooting.bullet_damage = 0.125/4
 
             g.twarzship.colors.idle = asst.clrs.orange
@@ -225,6 +302,7 @@ function ctdg.getCartridges()
     return {
         "common",
         "slowdeath",
+        "hordes",
         "tiny"
     }
 end

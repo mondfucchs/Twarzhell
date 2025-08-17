@@ -123,6 +123,7 @@ function enms.polyshooter(x, y, bullets, delay)
         if self.timer <= 0 then
             asst.snds.enemy_shot:stop()
             asst.snds.enemy_shot:play()
+
             for i = 0, (2 * math.pi)-.1, (2 * math.pi) / self.bullets.amount do
                 self.timer = self.delay
 

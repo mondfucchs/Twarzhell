@@ -5,6 +5,34 @@ local utls = require("tools.utils")
 local asst = require("logs.asst")
 local ctdg = require("logs.ctdg")
 
+    -- helpers
+local function divideText(text, font, width)
+    local divided = {}
+    local current_line = ""
+
+    -- gmatch searchs for non-space sequences;
+    -- (though called 'word', 'word' also includes punctuation, e.g. "dot.", "what?")
+    for word in string.gmatch(text, "%S+") do
+
+        -- if adding this word makes the current_line's width greater than width
+        if font:getWidth(current_line .. " " .. word) > width then
+            -- add current_line to divided and reset it already with word
+            table.insert(divided, current_line)
+            current_line = word
+
+        else
+            -- else, just put word in current_line :)
+            current_line = current_line .. " " .. word
+
+        end
+
+    end
+
+    -- inserting final current_line
+    table.insert(divided,current_line)
+
+    return divided
+end
 
     -- classes
 local clss = {}
@@ -79,8 +107,24 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             -- Hovering highlights
             if utls.checkHover(16, y, game.coords.ctdg_width, game.coords.ctdg_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
                 color = {0.5, 0.5, 0.5}
-                love.graphics.setColor(color)
-                love.graphics.print("Difficulty: " .. ctdgdata.difficulty .. "/10", 20, y + game.coords.ctdg_height - 18)
+                love.graphics.setColor(asst.clrs.bley)
+                love.graphics.print("HI: " .. ctdg:getScores()[ctdgdata.name], 20, y + game.coords.ctdg_height - 30)
+
+                love.graphics.setColor(asst.clrs.red)
+                love.graphics.print("Diff: " .. ctdgdata.difficulty .. "/10", 20, y + game.coords.ctdg_height - 18)
+
+                love.graphics.setColor(0.025, 0.025, 0.025, 0.8)
+                love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.ctdg_height)
+
+                -- Printing description
+                for j, line in pairs(divideText(ctdgdata.desc, asst.fnts.lilfont_a, game.coords.game_width - 60)) do
+                    love.graphics.setColor(1, 1, 1)
+                    love.graphics.print(
+                        line,
+                        (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth(line)/2),
+                        22 + (j-1)*8
+                    )
+                end
             end
 
             -- Difficulty
@@ -97,6 +141,12 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         -- Hovering highlights
         if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
             backbutton_color = {1, 1, 1}
+
+            -- Printing description
+            love.graphics.setColor(0.025, 0.025, 0.025, 0.9)
+            love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.ctdg_height)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print("Go back", (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth("Go back")/2), 22)
         end
 
         -- Drawing backbutton
@@ -122,7 +172,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     game.state = "menu" -- "playing"|"dead"|"menu"
     game.background_color = {0.025, 0.025, 0.025}
     game.menu = {
-        section = "opt", -- "opt"|"cartridge"
+        section = "opt", -- "opt"|cartridge"
         options = {
             "Random Cartridge",
             "Select Cartridge",
@@ -254,7 +304,6 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             love.graphics.print("Twarzhell", (self.coords.game_width/2), 32, math.sin(os.clock())/16, 1, 1, (asst.fnts.midfont_a:getWidth("Twarzhell")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))
 
             if self.menu.section == "opt" then
-                -- Options
                 drawOptions()
             elseif self.menu.section == "cartridge" then
                 drawCartridges()
@@ -293,9 +342,6 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             love.graphics.setColor(asst.clrs.brey); love.graphics.setFont(asst.fnts.lilfont_a)
             love.graphics.print(utls.roundTo(self.volume*100, 10) .. "% volume", 4, self.coords.game_height-16)
         end
-
-            love.graphics.setColor(1, 0, 0)
-            love.graphics.print(tostring(ctdg:getScores()[game.currentdata.cartridge]), 16, 96)
     end
     function game.mousepressed(self)
         if self.state == "menu" then
