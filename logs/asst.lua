@@ -35,6 +35,15 @@ asst.snds = {
     new_game = love.audio.newSource("assets/sounds/new_game.wav", "static"),
     explosion = love.audio.newSource("assets/sounds/explosion.wav", "static"),
     click = love.audio.newSource("assets/sounds/click.wav", "static"),
+    -- (bande originale)
+    musics = {
+        twarzhell   = love.audio.newSource("assets/sounds/musics/twarzhell.mp3", "stream"),
+        balles      = love.audio.newSource("assets/sounds/musics/balles.mp3", "stream"),
+        fusil       = love.audio.newSource("assets/sounds/musics/fusil.mp3", "stream"),
+        enfer       = love.audio.newSource("assets/sounds/musics/enfer.mp3", "stream"),
+    }
 }
+
+asst.snds.musics.twarzhell:setLooping(true)
 
 return asst

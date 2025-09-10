@@ -1,4 +1,4 @@
-common:1346
-slowdeath:417
-hordes:3478
-tiny:3185
+common:0
+slowdeath:0
+hordes:0
+tiny:0

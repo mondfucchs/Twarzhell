@@ -303,7 +303,7 @@ function ctdg.getCartridges()
         "common",
         "slowdeath",
         "hordes",
-        "tiny"
+        "tiny",
     }
 end
 

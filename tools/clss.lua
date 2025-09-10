@@ -114,7 +114,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                 love.graphics.print("Diff: " .. ctdgdata.difficulty .. "/10", 20, y + game.coords.ctdg_height - 18)
 
                 love.graphics.setColor(0.025, 0.025, 0.025, 0.8)
-                love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.ctdg_height)
+                love.graphics.rectangle("fill", 0, 0, game.coords.game_width, 50)
 
                 -- Printing description
                 for j, line in pairs(divideText(ctdgdata.desc, asst.fnts.lilfont_a, game.coords.game_width - 60)) do
@@ -122,7 +122,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                     love.graphics.print(
                         line,
                         (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth(line)/2),
-                        22 + (j-1)*8
+                        22 + (j-1)*12
                     )
                 end
             end
@@ -143,8 +143,8 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             backbutton_color = {1, 1, 1}
 
             -- Printing description
-            love.graphics.setColor(0.025, 0.025, 0.025, 0.9)
-            love.graphics.rectangle("fill", 0, 0, game.coords.game_width, game.coords.ctdg_height)
+            love.graphics.setColor(0.025, 0.025, 0.025, 0.8)
+            love.graphics.rectangle("fill", 0, 0, game.coords.game_width, 50)
             love.graphics.setColor(1, 1, 1)
             love.graphics.print("Go back", (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth("Go back")/2), 22)
         end
@@ -212,6 +212,11 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     game.space = clss.newSpace(game)
     game.twarzship = clss.newTwarzship(game.space, twarzship_x, twarzship_y)
     game.space.twarzship = game.twarzship
+    game.music = clss.music({
+        asst.snds.musics.balles,
+        asst.snds.musics.enfer,
+        asst.snds.musics.fusil
+    })
 
     function game.setDefaultConfigs(self)
         self.background_color = {0.025, 0.025, 0.025}
@@ -246,7 +251,9 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     end
 
     function game.update(self)
+        self.music:update(self.state, self.volume)
         love.audio.setVolume(self.volume)
+
         if game.state == "playing" then
             self.currentdata.timer = self.currentdata.timer + love.timer.getAverageDelta()
             if self.twarzship:update() then
@@ -398,6 +405,62 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     end
 
     return game
+end
+function clss.music(tracks)
+
+    local m = {
+        title = asst.snds.musics.twarzhell,
+
+        tracks = tracks,
+        tracksvolume = 5,
+        current = 2,
+    }
+
+    function m:update(gstate, volume)
+
+        if (gstate == "menu") then
+
+            self.tracks[self.current]:stop()
+
+            self.title:play()
+
+        else
+
+            self.title:stop()
+
+            -- setting different audio effects deppending on game state
+            if      gstate == "paused" then
+                self.tracks[self.current]:setVolume((volume*self.tracksvolume))
+                self.tracks[self.current]:setPitch(0.8)
+
+            elseif  gstate == "dead" then
+                self.tracks[self.current]:setVolume((volume*self.tracksvolume))
+                self.tracks[self.current]:setPitch(0.5)
+
+            elseif  gstate == "playing" then
+                self.tracks[self.current]:setVolume((volume*self.tracksvolume))
+                self.tracks[self.current]:setPitch(1)
+
+            end
+
+            -- if current music isn't playing anymore, go to the next one
+            if not self.tracks[self.current]:isPlaying() then
+                self.current = utls.circular(self.current + 1, #self.tracks)
+            end
+
+            -- play music with new configurations
+            self.tracks[self.current]:play()
+
+        end
+
+    end
+
+    function m:gotoMenu()
+
+    end
+
+    return m
+
 end
 function clss.newSpace(_game)
     local space = {
