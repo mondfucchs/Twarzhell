@@ -56,9 +56,9 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if key == "kp8" then
+    if key == "n" then
         game.volume = utls.limit(game.volume + 0.1, 0, 1)
-    elseif key == "kp2" then
+    elseif key == "b" then
         game.volume = utls.limit(game.volume - 0.1, 0, 1)
     end
 

@@ -4,8 +4,6 @@ local love = require("love")
     -- assets
 local asst = {}
 
-asst.controls = love.graphics.newImage("assets/imgs/controls.png")
-
 asst.clrs = {
     red = {0.8, 0.1, 0.1},
     bley = {81/255, 157/255, 232/255},

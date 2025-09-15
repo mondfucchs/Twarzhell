@@ -42,6 +42,29 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     local game = {}
 
     -- helpers
+    local function drawBackButton()
+        local backbutton_color = {0.4, 0.4, 0.4}
+        -- Hovering highlights
+        if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+            backbutton_color = {1, 1, 1}
+
+            -- Printing description
+            love.graphics.setColor(0.025, 0.025, 0.025, 0.8)
+            love.graphics.rectangle("fill", 0, 0, game.coords.game_width, 50)
+            love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
+            love.graphics.print("Go back", (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth("Go back")/2), 22)
+        end
+
+        -- Drawing backbutton
+        love.graphics.setColor(backbutton_color); love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", 16, 16, 16, 16)
+        love.graphics.polygon(
+            "fill",
+            28, 20,
+            20, 24,
+            28, 28
+        )
+    end
     local function drawHUD()
             -- box
         love.graphics.setColor(asst.clrs.grey)
@@ -138,27 +161,53 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             love.graphics.print(cartridge, (game.coords.game_width/2)-(asst.fnts.lilfont_a:getWidth(cartridge)/2), y + (game.coords.ctdg_height/2)-8)
         end
 
-        local backbutton_color = {0.4, 0.4, 0.4}
-        -- Hovering highlights
-        if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
-            backbutton_color = {1, 1, 1}
+        drawBackButton()
+    end
+    local function drawControls()
 
-            -- Printing description
-            love.graphics.setColor(0.025, 0.025, 0.025, 0.8)
-            love.graphics.rectangle("fill", 0, 0, game.coords.game_width, 50)
+            -- interactive area
+            -- values
+        local box_x = 30
+        local box_y = 105
+        local box_w = 190
+        local box_h = 175
+
+            -- drawing
+        love.graphics.setColor(asst.clrs.grey)
+        love.graphics.rectangle("line", box_x, box_y, box_w, box_h)
+
+        game.menu.interactive_space:draw()
+        game.menu.interactive_twarzship:draw()
+
+        game.menu.interactive_space:update()
+        game.menu.interactive_twarzship:update()
+
+            -- controls and descriptions
+            -- values
+        local line_height = 10
+        local lines_content = {
+            { control = "WASD", control_color = asst.clrs.orange, desc = "to move" },
+            { control = "Arrows", control_color = asst.clrs.bley, desc = "to shoot" },
+            { control = "B and N", control_color = asst.clrs.red, desc = "to adjust volume" }
+        }
+
+        love.graphics.setFont(asst.fnts.lilfont_a)
+        for i, content in pairs(lines_content) do
+
+            local controls_width = asst.fnts.lilfont_a:getWidth(content.control .. " ")
+
+            -- controls
+            love.graphics.setColor(content.control_color)
+            love.graphics.print(content.control, 30, (i-1)*line_height + 60)
+            -- desc
             love.graphics.setColor(1, 1, 1)
-            love.graphics.print("Go back", (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth("Go back")/2), 22)
+            love.graphics.print(content.desc, 30 + controls_width, (i-1)*line_height + 60)
+
         end
 
-        -- Drawing backbutton
-        love.graphics.setColor(backbutton_color)
-        love.graphics.rectangle("line", 16, 16, 16, 16)
-        love.graphics.polygon(
-            "fill",
-            28, 20,
-            20, 24,
-            28, 28
-        )
+            -- backbutton
+        drawBackButton()
+
     end
     local function loadCartridge(cartridge)
         game:clear()
@@ -172,8 +221,9 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
 
     game.state = "menu" -- "playing"|"dead"|"menu"
     game.background_color = {0.025, 0.025, 0.025}
+
     game.menu = {
-        section = "opt", -- "opt"|cartridge"
+        section = "controls", -- "opt"|cartridge"|"controls"
         options = {
             "Random Cartridge",
             "Select Cartridge",
@@ -196,6 +246,9 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             end
         }
     }
+    game.menu.interactive_space = clss.newSpace(game, 30+9, 105+9, 190-18, 175-18)
+    game.menu.interactive_twarzship = clss.newTwarzship(game.menu.interactive_space, twarzship_x, twarzship_y)
+
     game.currentdata = {
         cartridge = "",
         new_hiscore = false,
@@ -320,29 +373,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             elseif self.menu.section == "cartridge" then
                 drawCartridges()
             elseif self.menu.section == "controls" then
-                love.graphics.draw(asst.controls, 0, 0)
-
-                local backbutton_color = {0.4, 0.4, 0.4}
-                -- Hovering highlights
-                if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
-                    backbutton_color = {1, 1, 1}
-
-                    -- Printing description
-                    love.graphics.setColor(0.025, 0.025, 0.025, 0.8)
-                    love.graphics.rectangle("fill", 0, 0, game.coords.game_width, 50)
-                    love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
-                    love.graphics.print("Go back", (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth("Go back")/2), 22)
-                end
-
-                -- Drawing backbutton
-                love.graphics.setColor(backbutton_color)
-                love.graphics.rectangle("line", 16, 16, 16, 16)
-                love.graphics.polygon(
-                    "fill",
-                    28, 20,
-                    20, 24,
-                    28, 28
-                )
+                drawControls()
             end
 
             -- Cursor
@@ -374,7 +405,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
 
         end
 
-        if love.keyboard.isDown("kp8") or love.keyboard.isDown("kp2") then
+        if love.keyboard.isDown("b") or love.keyboard.isDown("n") then
             love.graphics.setColor(asst.clrs.brey); love.graphics.setFont(asst.fnts.lilfont_a)
             love.graphics.print(utls.roundTo(self.volume*100, 10) .. "% volume", 4, self.coords.game_height-16)
         end
@@ -481,7 +512,7 @@ function clss.music(tracks)
     return m
 
 end
-function clss.newSpace(_game)
+function clss.newSpace(_game, x, y, w, h)
     local space = {
         -- Actual enemies, bosses and projectiles.
         objects = {},
@@ -491,10 +522,10 @@ function clss.newSpace(_game)
         managers = {},
         -- General information about the entire space itself
         data = {
-            w = 250,
-            h = 250,
-            x = 0,
-            y = 50, --magic numbers go brrr
+            w = w or 250,
+            h = h or 250,
+            x = x or 0,
+            y = y or 50, --magic numbers go brrr
         }
     }
 
