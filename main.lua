@@ -3,6 +3,7 @@ local love = require("love")
 local clss = require("tools.clss")
 local push = require("tools.push")
 local utls = require("tools.utils")
+local save = require("tools.save")
     -- logs
 local enms = require("logs.enms")
 local asst = require("logs.asst")
@@ -41,7 +42,7 @@ function love.load()
         }
     )
 
-    game:load()
+    save.load()
 end
 
 function love.update()

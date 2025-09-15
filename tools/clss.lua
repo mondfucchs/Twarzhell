@@ -1,6 +1,7 @@
     -- tools
 local love = require("love")
 local utls = require("tools.utils")
+local save = require("tools.save")
     -- logs
 local asst = require("logs.asst")
 local ctdg = require("logs.ctdg")
@@ -176,6 +177,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         options = {
             "Random Cartridge",
             "Select Cartridge",
+            "Controls",
             "GitHub Repository",
         },
         funcs = {
@@ -185,6 +187,9 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             end,
             function()
                 game.menu.section = "cartridge"
+            end,
+            function()
+                game.menu.section = "controls"
             end,
             function()
                 love.system.openURL("https://github.com/mondfucchs/Twarzhell")
@@ -235,7 +240,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         }
     end
     function game.reset(self)
-        self.save()
+        save.save()
         self.twarzship:clear()
         self.space:reset()
 
@@ -314,6 +319,30 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                 drawOptions()
             elseif self.menu.section == "cartridge" then
                 drawCartridges()
+            elseif self.menu.section == "controls" then
+                love.graphics.draw(asst.controls, 0, 0)
+
+                local backbutton_color = {0.4, 0.4, 0.4}
+                -- Hovering highlights
+                if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                    backbutton_color = {1, 1, 1}
+
+                    -- Printing description
+                    love.graphics.setColor(0.025, 0.025, 0.025, 0.8)
+                    love.graphics.rectangle("fill", 0, 0, game.coords.game_width, 50)
+                    love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
+                    love.graphics.print("Go back", (game.coords.game_width/2) - (asst.fnts.lilfont_a:getWidth("Go back")/2), 22)
+                end
+
+                -- Drawing backbutton
+                love.graphics.setColor(backbutton_color)
+                love.graphics.rectangle("line", 16, 16, 16, 16)
+                love.graphics.polygon(
+                    "fill",
+                    28, 20,
+                    20, 24,
+                    28, 28
+                )
             end
 
             -- Cursor
@@ -362,12 +391,6 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                     end
                 end
             elseif self.menu.section == "cartridge" then
-                -- Backbutton
-                if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
-                    asst.snds.click:stop()
-                    asst.snds.click:play()
-                    self.menu.section = "opt"
-                end
                 -- Cartridge
                 for i, cartridge in pairs(ctdg.getCartridges()) do
                     local y = 80 + (i-1)*(game.coords.ctdg_height+8)
@@ -376,19 +399,15 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                     end
                 end
             end
-        end
-    end
 
-    function game.save()
-        local savefile = io.open("logs/score.txt", "w")
-        local scores = ctdg:getScores()
-
-        if savefile then
-            for _, cartridge in ipairs(ctdg:getCartridges()) do
-                savefile:write(cartridge, ":", scores[cartridge], "\n")
+            if self.menu.section == "cartridge" or self.menu.section == "controls" then
+                -- Backbutton
+                if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                    asst.snds.click:stop()
+                    asst.snds.click:play()
+                    self.menu.section = "opt"
+                end
             end
-
-            savefile:close()
         end
     end
 

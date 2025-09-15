@@ -1,4 +1,0 @@
-common:0
-slowdeath:0
-hordes:0
-tiny:0
