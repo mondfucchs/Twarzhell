@@ -24,7 +24,7 @@ function save.save()
 
     savefile:open("w")
     for _, value in pairs(ctdg.getCartridges()) do
-        savefile:write(invertBytes(value .. ":" .. ctdg:getScores()[value]))
+        savefile:write(invertBytes(value .. ":" .. ctdg:getScores()[value] .. ":" .. ctdg:getTimes()[value]))
     end
 
     savefile:close()
@@ -40,7 +40,9 @@ function save.load()
         content = invertBytes(content)
 
         for _, value in pairs(ctdg.getCartridges()) do
-            ctdg.scores[value] = tonumber(content:match(value .. ":" .. "(%d+)"))
+            ctdg.scores[value], ctdg.times[value] = content:match(value .. ":" .. "(%d+):(%d+)")
+            ctdg.scores[value] = tonumber(ctdg.scores[value])
+            ctdg.times[value] = tonumber(ctdg.times[value])
         end
 
     end

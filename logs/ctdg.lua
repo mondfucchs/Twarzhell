@@ -13,6 +13,13 @@ ctdg.scores = {
     hordes = 0,
     tiny = 0
 }
+ctdg.times = {
+    common = 0,
+    slowdeath = 0,
+    hordes = 0,
+    tiny = 0
+}
+
 ctdg.ctdg = {}
 
 function ctdg.ctdg.common()
@@ -312,6 +319,13 @@ function ctdg.getScores(self)
 end
 function ctdg.setScore(self, cartridge, score)
     self.scores[cartridge] = score
+end
+
+function ctdg.getTimes(self)
+    return self.times
+end
+function ctdg.setTimes(self, cartridge, time)
+    self.times[cartridge] = math.floor(time)
 end
 
 return ctdg

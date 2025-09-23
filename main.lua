@@ -6,6 +6,7 @@ local utls = require("tools.utils")
 local save = require("tools.save")
     -- logs
 local enms = require("logs.enms")
+local ctdg = require("logs.ctdg")
 local asst = require("logs.asst")
 
 
@@ -45,7 +46,7 @@ function love.load()
     save.load()
 end
 
-function love.update()
+function love.update(dt)
     game:update()
 end
 
@@ -56,11 +57,8 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if key == "n" then
-        game.volume = utls.limit(game.volume + 0.1, 0, 1)
-    elseif key == "b" then
-        game.volume = utls.limit(game.volume - 0.1, 0, 1)
-    end
+
+    game:keypressed(key)
 
     if game.state == "dead" and key == "space" then
 
@@ -71,12 +69,13 @@ function love.keypressed(key)
         game.state = utls.boolToValue(game.state == "paused", "playing", "paused")
     end
 
-    if game.state == "paused" then
-        if key == "m" then
-            asst.snds.twarzship_dead:play()
-            game:clear()
-            game.state = "menu"
+    if key == "u" then
+
+        for _, catridge in pairs(ctdg:getCartridges()) do
+            ctdg:setTimes(catridge, 0)
+            ctdg:setScore(catridge, 0)
         end
+
     end
 end
 

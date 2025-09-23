@@ -98,16 +98,17 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             35
         )
     end
-    local function drawOptions()
+    local function drawTitlescreen()
         love.graphics.setLineWidth(2)
         love.graphics.setFont(asst.fnts.lilfont_a)
 
         for i, option in pairs(game.menu.options) do
             local y = 64 + (i-1)*(game.coords.menub_height+8)
-            local color = {1, 1, 1}
-            -- Hovering highlights
+            local color = game.menu.highlight[i]
+
+            -- hovering highlights
             if utls.checkHover(16, y, game.coords.menub_width, game.coords.menub_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
-                color = {0.5, 0.5, 0.5}
+                color = asst.clrs.grey
             end
 
             -- Box
@@ -131,9 +132,16 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             -- Hovering highlights
             if utls.checkHover(16, y, game.coords.ctdg_width, game.coords.ctdg_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
                 color = {0.5, 0.5, 0.5}
+
+                -- hitime
+                love.graphics.setColor(asst.clrs.bley[1], asst.clrs.bley[2], asst.clrs.bley[3], .5)
+                love.graphics.print("HItime: " .. ctdg:getTimes()[ctdgdata.name], 20, y + game.coords.ctdg_height - 42)
+
+                -- hiscore
                 love.graphics.setColor(asst.clrs.bley)
                 love.graphics.print("HI: " .. ctdg:getScores()[ctdgdata.name], 20, y + game.coords.ctdg_height - 30)
 
+                -- difficulty
                 love.graphics.setColor(asst.clrs.red)
                 love.graphics.print("Diff: " .. ctdgdata.difficulty .. "/10", 20, y + game.coords.ctdg_height - 18)
 
@@ -188,7 +196,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         local lines_content = {
             { control = "WASD", control_color = asst.clrs.orange, desc = "to move" },
             { control = "Arrows", control_color = asst.clrs.bley, desc = "to shoot" },
-            { control = "B and N", control_color = asst.clrs.red, desc = "to adjust volume" }
+            { control = "SPACE", control_color = asst.clrs.red, desc = "to select options" }
         }
 
         love.graphics.setFont(asst.fnts.lilfont_a)
@@ -209,6 +217,101 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         drawBackButton()
 
     end
+    local function drawPauseOptions()
+
+            -- drawing settings
+        love.graphics.setFont(asst.fnts.lilfont_a)
+
+            -- drawing captions
+        local caption_origin_y = (game_height/2) - (10*#game.configs.captions)/2
+        for i, caption in pairs(game.configs.captions) do
+
+                -- re-setting
+            love.graphics.setColor(1, 1, 1)
+
+                -- values
+            local caption_x = (game_width/2) - (asst.fnts.lilfont_a:getWidth(caption)/2)
+            local caption_y = caption_origin_y + 15*(i-1)
+
+                -- changing color based on if option is currently selected
+            love.graphics.setColor(
+                (i == game.configs.selected)
+                and asst.clrs.orange
+                or  {1, 1, 1}
+            )
+
+                -- drawing
+            love.graphics.print(caption, caption_x, caption_y)
+
+        end
+
+            -- drawing currently selected option's hint
+        local hint = game.configs.hint[game.configs.selected]
+
+        love.graphics.setColor(asst.clrs.grey)
+        love.graphics.print(
+            hint,
+            game_width/2 - asst.fnts.lilfont_a:getWidth(hint)/2,
+            game_height - 25
+        )
+
+    end
+    local function drawMenuOptions()
+
+        love.graphics.setLineWidth(2)
+        love.graphics.setFont(asst.fnts.lilfont_a)
+
+        local button_x      = 48
+        local origin_y      = 64
+        local button_height = 48
+        local button_width  = game.coords.menub_width - 64
+
+        for i, button in pairs(game.configs.buttons) do
+
+            local button_y = origin_y + (i-1)*(button_height+8)
+
+                -- box hovering highlights
+            love.graphics.setColor(1, 1, 1) --default
+            if utls.checkHover(button_x, button_y, button_width, button_height, love.mouse.getX() / game.coords.scale, love.mouse.getY() / game.coords.scale) then
+                love.graphics.setColor(asst.clrs.grey)
+            end
+
+                -- box
+            love.graphics.rectangle("line", button_x, button_y, button_width, button_height)
+                -- text
+            love.graphics.print(button, button_x+(button_width)/2-(asst.fnts.lilfont_a:getWidth(button)/2), button_y + (button_height/2)-8)
+
+            -- arrows
+
+                -- left arrow hovering highlights
+            if utls.checkHover(16, button_y, 24, button_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                love.graphics.setColor(asst.clrs.grey)
+            else
+                love.graphics.setColor(1, 1, 1)
+            end
+            love.graphics.polygon("fill",
+                16, button_y + button_height/2,
+                40, button_y,
+                40, button_y + button_height
+            )
+
+                -- right arrow hovering highlights
+            if utls.checkHover(button_x + button_width + 8, button_y, 24, button_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                love.graphics.setColor(asst.clrs.grey)
+            else
+                love.graphics.setColor(1, 1, 1)
+            end
+            love.graphics.polygon("fill",
+                button_x + button_width + 8 + 24, button_y + button_height/2,
+                button_x + button_width + 8, button_y,
+                button_x + button_width + 8, button_y + button_height
+            )
+
+        end
+
+        drawBackButton()
+
+    end
     local function loadCartridge(cartridge)
         game:clear()
         asst.snds.new_game:play()
@@ -219,31 +322,37 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         game.currentdata.cartridge = cartridge.name
     end
 
-    game.state = "menu" -- "playing"|"dead"|"menu"
+    game.state = "menu" -- "playing"|"dead"|"menu"|"paused"
     game.background_color = {0.025, 0.025, 0.025}
 
     game.menu = {
-        section = "controls", -- "opt"|cartridge"|"controls"
+        section = "opt", -- "opt"|cartridge"|"controls"
+        highlight = {
+            asst.clrs.bley,
+            {1, 1, 1},
+            {1, 1, 1},
+            {1, 1, 1}
+        },
         options = {
-            "Random Cartridge",
             "Select Cartridge",
+            "Random Cartridge",
+            "Configurations",
             "Controls",
-            "GitHub Repository",
         },
         funcs = {
+            function()
+                game.menu.section = "cartridge"
+            end,
             function()
                 local choosen = ctdg.getCartridges()[math.random(#ctdg.getCartridges())]
                 loadCartridge(ctdg.ctdg[choosen]())
             end,
             function()
-                game.menu.section = "cartridge"
+                game.menu.section = "configurations"
             end,
             function()
                 game.menu.section = "controls"
             end,
-            function()
-                love.system.openURL("https://github.com/mondfucchs/Twarzhell")
-            end
         }
     }
     game.menu.interactive_space = clss.newSpace(game, 30+9, 105+9, 190-18, 175-18)
@@ -252,10 +361,12 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     game.currentdata = {
         cartridge = "",
         new_hiscore = false,
+        new_hitime = false,
         score = 0,
         timer = 0,
     }
-    game.volume = 0.1
+    game.music_volume = 4
+    game.sfx_volume   = 3
     game.coords = {
         scale = 2,
         game_width = game_width,
@@ -265,6 +376,123 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         menub_height = (game_height - 80 - (#game.menu.options-1)*8) / #game.menu.options,
         ctdg_width = game_width - 32,
         ctdg_height = (game_height - 96 - (#ctdg.getCartridges()-1)*8) / #ctdg.getCartridges(),
+    }
+    game.configs = {
+        selected = 1,
+
+        -- paused
+
+        captions = {
+            "Resume game",
+            "Back to menu",
+            "Music volume " .. "(" .. game.music_volume*10 .. "%)",
+            "SFX volume " .. "(" .. game.sfx_volume*10 .. "%)",
+        },
+        hint = {
+            "Select with space",
+            "Select with space",
+            "Change with arrows",
+            "Change with arrows",
+        },
+        functions = {
+            -- resume game
+            function(key)
+
+                if key ~= "space" then return end
+                asst.snds.click:play()
+                game.state = "playing"
+
+            end,
+
+            -- back to menu
+            function(key)
+
+                if key ~= "space" then return end
+                asst.snds.twarzship_dead:play()
+                game.state = "menu"
+
+            end,
+
+            -- music volume
+            function(key)
+
+                game.music_volume = utls.limit(
+                    game.music_volume - utls.boolToValue(key == "left", 1, 0) + utls.boolToValue(key == "right", 1, 0),
+                    0, 10
+                )
+
+                if key == "left" or key == "right"  then
+                    asst.snds.click:play()
+                end
+
+                game.configs.buttons[1] = "Music volume " .. "(" .. game.music_volume*10 .. "%)"
+                game.configs.captions[3] = "Music volume " .. "(" .. game.music_volume*10 .. "%)"
+
+            end,
+
+            -- sound effects volume
+            function(key)
+
+                game.sfx_volume = utls.limit(
+                    game.sfx_volume - utls.boolToValue(key == "left", 1, 0) + utls.boolToValue(key == "right", 1, 0),
+                    0, 10
+                )
+
+                if key == "left" or key == "right"  then
+                    asst.snds.click:play()
+                end
+
+                game.configs.buttons[2] = "SFX volume " .. "(" .. game.sfx_volume*10 .. "%)"
+                game.configs.captions[4] = "SFX volume " .. "(" .. game.sfx_volume*10 .. "%)"
+
+            end
+        },
+
+        -- menu
+
+        buttons = {
+            "Music volume " .. "(" .. game.music_volume*10 .. "%)",
+            "SFX volume " .. "(" .. game.sfx_volume*10 .. "%)",
+        },
+        menufuncs = {
+            -- music volume
+            function(part)
+
+                if part == "left" or part == "right" then
+
+                    asst.snds.click:play()
+
+                    game.music_volume = utls.limit(
+                        game.music_volume - utls.boolToValue(part == "left", 1, 0) + utls.boolToValue(part == "right", 1, 0),
+                        0, 10
+                    )
+
+                    game.configs.buttons[1] = "Music volume " .. "(" .. game.music_volume*10 .. "%)"
+                    game.configs.captions[3] = "Music volume " .. "(" .. game.music_volume*10 .. "%)"
+
+                end
+
+            end,
+            -- sound effects volume
+            function(part)
+
+                if part == "left" or part == "right" then
+
+                    asst.snds.click:play()
+
+                    game.sfx_volume = utls.limit(
+                        game.sfx_volume - utls.boolToValue(part == "left", 1, 0) + utls.boolToValue(part == "right", 1, 0),
+                        0, 10
+                    )
+
+                    game.configs.buttons[2] = "SFX volume " .. "(" .. game.sfx_volume*10 .. "%)"
+                    game.configs.captions[4] = "SFX volume " .. "(" .. game.sfx_volume*10 .. "%)"
+
+                end
+
+            end
+        }
+
     }
 
     game.space = clss.newSpace(game)
@@ -303,14 +531,14 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         game.currentdata = {
             cartridge = cartridge,
             new_hiscore = false,
+            new_hitime = false,
             score = 0,
             timer = 0
         }
     end
 
     function game.update(self)
-        self.music:update(self.state, self.volume)
-        love.audio.setVolume(self.volume)
+        self.music:update(self.state, self.music_volume, self.sfx_volume)
 
         if game.state == "playing" then
             self.currentdata.timer = self.currentdata.timer + love.timer.getAverageDelta()
@@ -319,6 +547,11 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                 if self.currentdata.score > ctdg:getScores()[self.currentdata.cartridge] then
                     self.currentdata.new_hiscore = true
                     ctdg:setScore(self.currentdata.cartridge, self.currentdata.score)
+                end
+
+                if self.currentdata.timer > ctdg:getTimes()[self.currentdata.cartridge] then
+                    self.currentdata.new_hitime = true
+                    ctdg:setTimes(self.currentdata.cartridge, self.currentdata.timer)
                 end
 
                 self.state = "dead"
@@ -341,21 +574,29 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             drawHUD()
 
         elseif self.state == "dead" then
+            local hisomething = self.currentdata.new_hitime or self.currentdata.new_hiscore
+
             -- Background
-            love.graphics.setColor(not self.currentdata.new_hiscore and {1, 1, 1} or self.twarzship.colors.idle)
+            love.graphics.setColor(not (hisomething) and {1, 1, 1} or self.twarzship.colors.idle)
             love.graphics.rectangle("fill", 0, 0, self.coords.game_width, self.coords.game_height)
 
             -- Score
-            love.graphics.setColor(self.currentdata.new_hiscore and {1, 1, 1} or {0.5, 0.5, 0.5})
+            love.graphics.setColor(hisomething and {1, 1, 1} or {0.5, 0.5, 0.5})
             love.graphics.print(ctdg:getScores()[self.currentdata.cartridge], math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(ctdg:getScores()[game.currentdata.cartridge])/2), 16)
-            love.graphics.setColor(self.currentdata.new_hiscore and {1, 1, 1} or self.background_color)
+            love.graphics.setColor(hisomething and {1, 1, 1} or self.background_color)
             love.graphics.print(self.currentdata.score, math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth(self.currentdata.score)/2), 24)
+
+            love.graphics.setColor(1, 1, 1)
 
             if self.currentdata.new_hiscore then
                 love.graphics.print("New HIscore!", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("New HIscore!")/2), self.coords.game_height / 2)
             end
 
-            self.twarzship:draw(self.currentdata.new_hiscore and {1, 1, 1})
+            if self.currentdata.new_hitime then
+                love.graphics.print("New HItime!", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("New HItime!")/2), self.coords.game_height / 2 + 10)
+            end
+
+            self.twarzship:draw(hisomething and {1, 1, 1})
         elseif self.state == "menu" then
             -- Background
             love.graphics.setColor(0.025, 0.025, 0.025)
@@ -369,11 +610,13 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             love.graphics.print("Twarzhell", (self.coords.game_width/2), 32, math.sin(os.clock())/16, 1, 1, (asst.fnts.midfont_a:getWidth("Twarzhell")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))
 
             if self.menu.section == "opt" then
-                drawOptions()
+                drawTitlescreen()
             elseif self.menu.section == "cartridge" then
                 drawCartridges()
             elseif self.menu.section == "controls" then
                 drawControls()
+            elseif self.menu.section == "configurations" then
+                drawMenuOptions()
             end
 
             -- Cursor
@@ -394,14 +637,17 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         end
 
         if game.state == "paused" then
-            love.graphics.setColor(0.025, 0.025, 0.025, 0.5)
-            love.graphics.rectangle("fill", 0, 0, self.coords.game_width, self.coords.game_height)
 
-            love.graphics.setColor(1, 1, 1); love.graphics.setFont(asst.fnts.lilfont_a)
-            love.graphics.print("PAUSED", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("PAUSED")/2), math.floor(self.coords.game_height)/2 - asst.fnts.lilfont_a:getHeight("PAUSED")/2)
+            love.graphics.setColor(
+                game.background_color[1],
+                game.background_color[2],
+                game.background_color[3],
+                0.75
+            )
 
-            love.graphics.setColor(0.5, 0.5, 0.5)
-            love.graphics.print("Menu: Press M", math.floor(self.coords.game_width/2 - asst.fnts.lilfont_a:getWidth("Menu: Press M")/2), self.coords.game_height - 20)
+            love.graphics.rectangle("fill", 0, 0, game_width, game_height)
+
+            drawPauseOptions()
 
         end
 
@@ -409,6 +655,23 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             love.graphics.setColor(asst.clrs.brey); love.graphics.setFont(asst.fnts.lilfont_a)
             love.graphics.print(utls.roundTo(self.volume*100, 10) .. "% volume", 4, self.coords.game_height-16)
         end
+    end
+    function game.keypressed(self, key)
+
+        if self.state == "paused" then
+
+            -- If using key to change selected option
+            if key == "down" then
+                self.configs.selected = utls.limit(self.configs.selected + 1, 1, #self.configs.captions)
+            elseif key == "up" then
+                self.configs.selected = utls.limit(self.configs.selected - 1, 1, #self.configs.captions)              
+            -- If using key to use currently selected option
+            else
+                self.configs.functions[self.configs.selected](key)
+            end
+
+        end
+
     end
     function game.mousepressed(self)
         if self.state == "menu" then
@@ -429,10 +692,33 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                         loadCartridge(ctdg.ctdg[cartridge]())
                     end
                 end
+            elseif self.menu.section == "configurations" then
+
+                local button_x      = 48
+                local origin_y      = 64
+                local button_height = 48
+                local button_width  = game.coords.menub_width - 64
+
+                for i, _ in pairs(game.configs.buttons) do
+
+                    local button_y = origin_y + (i-1)*(button_height+8)
+
+                        -- left arrow
+                    if utls.checkHover(16, button_y, 24, button_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                        game.configs.menufuncs[i]("left")
+                    end
+
+                        -- right arrow
+                    if utls.checkHover(button_x + button_width + 8, button_y, 24, button_height, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
+                        game.configs.menufuncs[i]("right")
+                    end
+
+                end
+
             end
 
-            if self.menu.section == "cartridge" or self.menu.section == "controls" then
-                -- Backbutton
+            -- backbutton
+            if self.menu.section == "cartridge" or self.menu.section == "controls" or self.menu.section == "configurations" then
                 if utls.checkHover(16, 16, 16, 16, love.mouse.getX()/game.coords.scale, love.mouse.getY()/game.coords.scale) then
                     asst.snds.click:stop()
                     asst.snds.click:play()
@@ -466,7 +752,22 @@ function clss.music(tracks)
         current = 2,
     }
 
-    function m:update(gstate, volume)
+    function m:update(gstate, music_volume, sfx_volume)
+
+            -- updating volumes
+        for _, sound in pairs(asst.snds) do
+
+            -- musics table (this piece of code isn't scable at all srry gonna fix it)
+            if type(sound) == "table" then
+
+                for _, music in pairs(sound) do
+                    music:setVolume(music_volume/10)
+                end
+
+            else
+                sound:setVolume(sfx_volume/10)
+            end
+        end
 
         if (gstate == "menu") then
 
@@ -480,15 +781,12 @@ function clss.music(tracks)
 
             -- setting different audio effects deppending on game state
             if      gstate == "paused" then
-                self.tracks[self.current]:setVolume((volume*self.tracksvolume))
                 self.tracks[self.current]:setPitch(0.8)
 
             elseif  gstate == "dead" then
-                self.tracks[self.current]:setVolume((volume*self.tracksvolume))
                 self.tracks[self.current]:setPitch(0.5)
 
             elseif  gstate == "playing" then
-                self.tracks[self.current]:setVolume((volume*self.tracksvolume))
                 self.tracks[self.current]:setPitch(1)
 
             end
