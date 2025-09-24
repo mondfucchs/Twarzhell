@@ -2,6 +2,8 @@
 local love = require("love")
 local ctdg = require("logs.ctdg")
 
+local asst = require("logs.asst")
+
     -- saving funcs
 local save = {}
 
@@ -32,17 +34,25 @@ function save.save()
 end
 function save.load()
 
+    -- If game wasn't ever saved before, do not load anything and save the base scores and times.
+    if not love.filesystem.getInfo("savefile.txt") then
+
+        save.save()
+        return
+
+    end
+
+    -- If there is a savefile, then everything's OK.
     local content = love.filesystem.read("savefile.txt")
 
-
-    if content then 
+    if content then
 
         content = invertBytes(content)
 
         for _, value in pairs(ctdg.getCartridges()) do
             ctdg.scores[value], ctdg.times[value] = content:match(value .. ":" .. "(%d+):(%d+)")
-            ctdg.scores[value] = tonumber(ctdg.scores[value])
-            ctdg.times[value] = tonumber(ctdg.times[value])
+            ctdg.scores[value] = tonumber(ctdg.scores[value]) or 0
+            ctdg.times[value] = tonumber(ctdg.times[value]) or 0
         end
 
     end
