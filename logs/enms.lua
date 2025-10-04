@@ -8,9 +8,9 @@ local asst = require("logs.asst")
 local enms = {}
 
     -- bullets
-function enms.blueprint_bullet(dmg, life, radius, baseclr, draw, interact)
+function enms.blueprint_bullet(basedmg, life, radius, baseclr, draw, interact)
 
-    return function(ix, iy, vx, vy, color)
+    return function(ix, iy, vx, vy, color, dmg)
         local bullet = {
             x = ix,
             y = iy,
@@ -18,7 +18,8 @@ function enms.blueprint_bullet(dmg, life, radius, baseclr, draw, interact)
             vy = vy,
             c = color or baseclr,
             r = radius,
-            damage = dmg,
+            single = true,
+            damage = basedmg or dmg,
             life = life,
             interact = interact,
             state = "idle"
@@ -46,7 +47,7 @@ function enms.blueprint_bullet(dmg, life, radius, baseclr, draw, interact)
 end
 
 enms.bullet = enms.blueprint_bullet(
-    2, 4, 4,
+    12, 4, 4,
     asst.clrs.red,
     function(self)
         love.graphics.setColor(self.c[1], self.c[2], self.c[3], self.life)
@@ -54,11 +55,12 @@ enms.bullet = enms.blueprint_bullet(
     end,
     function(self, twarzship)
         twarzship:hit(self.damage)
+        return false
     end
 )
 
 enms.gullet = enms.blueprint_bullet(
-    10, 4, 4,
+    12, 4, 4,
     asst.clrs.red,
     function(self)
         love.graphics.setColor(self.c[1], self.c[2], self.c[3], self.life)
@@ -68,7 +70,7 @@ enms.gullet = enms.blueprint_bullet(
     end,
     function(self, twarzship)
         twarzship:heal(self.damage)
-        self.life = 0
+        return false
     end
 )
 
@@ -207,7 +209,8 @@ function enms.polybomb(x, y, bullets, delay)
                         self.y,
                         math.cos(i) * self.bullets.vel,
                         math.sin(i) * self.bullets.vel,
-                        {240/255, 104/255, 31/255}
+                        {240/255, 104/255, 31/255},
+                        16
                     )
                 )
             end
@@ -296,7 +299,8 @@ function enms.polyspin(x, y, bullets, delay)
                         self.y,
                         math.cos(self.ltime*4 + i) * self.bullets.vel,
                         math.sin(self.ltime*4 + i) * self.bullets.vel,
-                        {240/255, 160/255, 31/255}
+                        {240/255, 160/255, 31/255},
+                        8
                     )
                 )
             end
@@ -467,7 +471,8 @@ function enms.uniaim(x, y, delay)
                     self.y,
                     (dif_x / hip) * self.bullets.vel,
                     (dif_y / hip) * self.bullets.vel,
-                    asst.clrs.lgreen
+                    asst.clrs.lgreen,
+                    8
                 )
             )
         end

@@ -17,8 +17,8 @@ asst.clrs = {
 }
 
 asst.fnts = {
-    lilfont_a = love.graphics.newFont("assets/fonts/kapel.ttf", 16),
-    midfont_a = love.graphics.newFont("assets/fonts/kapel.ttf", 32)
+    lilfont_a = love.graphics.newFont("assets/fonts/gapel.ttf", 16),
+    midfont_a = love.graphics.newFont("assets/fonts/gapel.ttf", 32)
 }
 asst.fnts.lilfont_a:setFilter("nearest", "nearest")
 asst.fnts.midfont_a:setFilter("nearest", "nearest")

@@ -83,7 +83,7 @@ function ctdg.ctdg.common()
     return {
         name = "common",
         desc = "Intervals of five seconds, simplest mode.",
-        difficulty = 5,
+        difficulty = 7,
         manager = enms.manager(
             function(s)
                 behavior[i](s)
@@ -202,7 +202,7 @@ function ctdg.ctdg.hordes()
     return {
         name = "hordes",
         desc = "Large intervals, several enemies appear at once.",
-        difficulty = 7,
+        difficulty = 9,
         manager = enms.manager(
             function(s)
                 for i = 1, 5, 1 do
@@ -278,7 +278,7 @@ function ctdg.ctdg.tiny()
     return {
         name = "tiny",
         desc = "Ship has way less damage, health, and shield.",
-        difficulty = 9,
+        difficulty = 8,
         manager = enms.manager(
             function(s)
                 behavior[i](s)

@@ -196,7 +196,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         local lines_content = {
             { control = "WASD", control_color = asst.clrs.orange, desc = "to move" },
             { control = "Arrows", control_color = asst.clrs.bley, desc = "to shoot" },
-            { control = "SPACE", control_color = asst.clrs.red, desc = "to select options" }
+            { control = "ESC", control_color = asst.clrs.red, desc = "to pause game" }
         }
 
         love.graphics.setFont(asst.fnts.lilfont_a)
@@ -326,7 +326,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
     game.background_color = {0.025, 0.025, 0.025}
 
     game.menu = {
-        section = "opt", -- "opt"|cartridge"|"controls"
+        section = "opt", -- "opt"|"cartridge"|"controls"|"configurations"
         highlight = {
             asst.clrs.bley,
             {1, 1, 1},
@@ -670,6 +670,13 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
                 self.configs.functions[self.configs.selected](key)
             end
 
+        elseif self.state == "menu" then
+
+            if key == "escape" and (self.menu.section ~= "opt") then
+                asst.snds.click:play()
+                self.menu.section = "opt"
+            end
+
         end
 
     end
@@ -886,7 +893,7 @@ function clss.newSpace(_game, x, y, w, h)
         self.bullets = {}
     end
 
-
+    -- Checks if enemy ``obj`` was hit by any of the bullets in ``bullets``.
     local function checkShoot(obj, bullets)
         if obj.hurtable and ((obj.init and not obj.init.isInit) or (not obj.init)) then
             for _, bullet in pairs(bullets) do
@@ -980,7 +987,9 @@ function clss.newTwarzship(s, ix, iy)
         space = {
             x = ix,
             y = iy,
-            r = 8,
+            r = 8, -- radius
+            -- hitbox_radius / radius
+            hitbox_percentage = 0.85,
 
             vel_x = 0,
             vel_y = 0,
@@ -1119,10 +1128,14 @@ function clss.newTwarzship(s, ix, iy)
 
     -- Interacts self with ```obj``` enms object. Returns true if interaction happened
     function twarzship.interactWithObject(self, obj)
-        if utls.getDistanceBetweenPoints(self.space.x, self.space.y, obj.x, obj.y) <= self.space.r + obj.r then
+
+        if utls.getDistanceBetweenPoints(self.space.x, self.space.y, obj.x, obj.y) <= obj.r + (self.space.hitbox_percentage * obj.r) then
+            self.state = "hurt"
             obj:interact(self)
             return true
         end
+
+        return false
     end
     function twarzship.setDefaultConfigs(self)
         self.stats.max_health = 100
