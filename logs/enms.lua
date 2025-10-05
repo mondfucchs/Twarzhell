@@ -132,7 +132,7 @@ function enms.polyshooter(x, y, bullets, delay)
                 local random = math.random(1, 10)
                 local bullet = (random == 1) and (enms.gullet) or (enms.bullet)
 
-                S:insertObject(
+                S:insertEnemyBullet(
                     bullet(
                         self.x,
                         self.y,
@@ -203,7 +203,7 @@ function enms.polybomb(x, y, bullets, delay)
 
                 local random = math.random(1, 10)
                 local bullet = (random == 1) and (enms.gullet) or (enms.bullet)
-                S:insertObject(
+                S:insertEnemyBullet(
                     bullet(
                         self.x,
                         self.y,
@@ -293,7 +293,7 @@ function enms.polyspin(x, y, bullets, delay)
                 local random = math.random(1, 20)
                 local bullet = (random == 1) and (enms.gullet) or (enms.bullet)
 
-                S:insertObject(
+                S:insertEnemyBullet(
                     bullet(
                         self.x,
                         self.y,
@@ -376,7 +376,7 @@ function enms.unispin(x, y, divisions, delay)
             local random = math.random(1, 10)
             local bullet = (random == 1) and (enms.gullet) or (enms.bullet)
 
-            S:insertObject(
+            S:insertEnemyBullet(
                 bullet(
                     self.x,
                     self.y,
@@ -465,7 +465,7 @@ function enms.uniaim(x, y, delay)
             local random = math.random(1, 20)
             local bullet = (random == 1) and (enms.gullet) or (enms.bullet)
 
-            S:insertObject(
+            S:insertEnemyBullet(
                 bullet(
                     self.x,
                     self.y,

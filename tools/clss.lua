@@ -820,10 +820,12 @@ function clss.music(tracks)
 end
 function clss.newSpace(_game, x, y, w, h)
     local space = {
-        -- Actual enemies, bosses and projectiles.
+        -- Actual enemies
         objects = {},
+        -- Enemies's projectiles
+        enemy_bullets = {},
         -- Twarzship's projectiles
-        bullets = {},
+        tship_bullets = {},
         -- Not tangible structures that define the space's current behavior.
         managers = {},
         -- General information about the entire space itself
@@ -878,20 +880,24 @@ function clss.newSpace(_game, x, y, w, h)
         end
     end
 
-
-    function space.insertBullet(self, clss_declaration)
-        table.insert(self.bullets, clss_declaration)
+    function space.insertEnemyBullet(self, clss_declaration)
+        table.insert(self.enemy_bullets, clss_declaration)
+    end
+    function space.insertTwarzshipBullet(self, clss_declaration)
+        table.insert(self.tship_bullets, clss_declaration)
     end
 
 
     function space.clear(self)
         self.managers = {}
         self.objects = {}
-        self.bullets = {}
+        self.tship_bullets = {}
+        self.enemy_bullets = {}
     end
     function space.reset(self)
         self.objects = {}
-        self.bullets = {}
+        self.tship_bullets = {}
+        self.enemy_bullets = {}
     end
 
     -- Checks if enemy ``obj`` was hit by any of the bullets in ``bullets``.
@@ -924,7 +930,10 @@ function clss.newSpace(_game, x, y, w, h)
                 table.remove(self.objects, i)
             end
 
-            checkShoot(object, self.bullets)
+            -- Checking if it wasn't hit by any bullet
+            checkShoot(object, self.tship_bullets)
+
+            -- Interacting with Twarzship
             if (object.init and not object.init.isInit) or (not object.init) then
                 if game.twarzship:interactWithObject(object) and object.single then
                     table.remove(self.objects, i)
@@ -932,9 +941,21 @@ function clss.newSpace(_game, x, y, w, h)
             end
         end
 
-        for i, bullet in pairs(self.bullets) do
+        for i, bullet in pairs(self.enemy_bullets) do
+
             if not bullet:update(self) then
-                table.remove(self.bullets, i)
+                table.remove(self.enemy_bullets, i)
+            end
+
+            if game.twarzship:interactWithObject(bullet) then
+                table.remove(self.enemy_bullets, i)
+            end
+
+        end
+
+        for i, bullet in pairs(self.tship_bullets) do
+            if not bullet:update(self) then
+                table.remove(self.tship_bullets, i)
             end
         end
     end
@@ -943,7 +964,10 @@ function clss.newSpace(_game, x, y, w, h)
         for _, object in pairs(self.objects) do
             object:draw()
         end
-        for _, bullet in pairs(self.bullets) do
+        for _, bullet in pairs(self.enemy_bullets) do
+            bullet:draw()
+        end
+        for _, bullet in pairs(self.tship_bullets) do
             bullet:draw()
         end
 
@@ -1077,7 +1101,7 @@ function clss.newTwarzship(s, ix, iy)
     function twarzship.shot(self, x, y)
         asst.snds.twarzship_shot:stop()
         asst.snds.twarzship_shot:play()
-        s:insertBullet(
+        s:insertTwarzshipBullet(
             clss.newBullet(
                 self.space.x,
                 self.space.y,

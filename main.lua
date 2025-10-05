@@ -54,7 +54,15 @@ function love.draw()
     push:start()
     game:draw()
 
-    love.graphics.print(#game.space.objects)
+    love.graphics.setColor(0, 0, 0, 0.75)
+    love.graphics.rectangle("fill", 0, 0, 50, 75)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(
+        #game.space.objects .. "\n" ..
+        #game.space.enemy_bullets .. "\n" ..
+        #game.space.tship_bullets .. "\n" ..
+        #game.space.managers
+    )
 
     push:finish()
 end
