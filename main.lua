@@ -53,6 +53,9 @@ end
 function love.draw()
     push:start()
     game:draw()
+
+    love.graphics.print(#game.space.objects)
+
     push:finish()
 end
 

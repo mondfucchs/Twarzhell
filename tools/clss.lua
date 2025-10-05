@@ -176,9 +176,9 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             -- interactive area
             -- values
         local box_x = 30
-        local box_y = 105
+        local box_y = 115
         local box_w = 190
-        local box_h = 175
+        local box_h = 160
 
             -- drawing
         love.graphics.setColor(asst.clrs.grey)
@@ -196,7 +196,8 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         local lines_content = {
             { control = "WASD", control_color = asst.clrs.orange, desc = "to move" },
             { control = "Arrows", control_color = asst.clrs.bley, desc = "to shoot" },
-            { control = "ESC", control_color = asst.clrs.red, desc = "to pause game" }
+            { control = "ESC", control_color = asst.clrs.red, desc = "to pause game" },
+            { control = "SHIFT", control_color = asst.clrs.mdrey, desc = "to focus" }
         }
 
         love.graphics.setFont(asst.fnts.lilfont_a)
@@ -355,7 +356,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             end,
         }
     }
-    game.menu.interactive_space = clss.newSpace(game, 30+9, 105+9, 190-18, 175-18)
+    game.menu.interactive_space = clss.newSpace(game, 30+9, 115+9, 190-18, 160-18)
     game.menu.interactive_twarzship = clss.newTwarzship(game.menu.interactive_space, twarzship_x, twarzship_y)
 
     game.currentdata = {
@@ -938,12 +939,14 @@ function clss.newSpace(_game, x, y, w, h)
         end
     end
     function space.draw(self)
+
         for _, object in pairs(self.objects) do
             object:draw()
         end
         for _, bullet in pairs(self.bullets) do
             bullet:draw()
         end
+
     end
 
     return space
@@ -980,6 +983,7 @@ end
 function clss.newTwarzship(s, ix, iy)
     local twarzship = {
         state = "idle", -- "idle"|"hurt"|"dead"
+        focusing = false,
 
         s = s,
 
@@ -1049,8 +1053,10 @@ function clss.newTwarzship(s, ix, iy)
             movement.y = 1
         end
 
-        self.space.vel_x = self.space.vel * movement.x
-        self.space.vel_y = self.space.vel * movement.y
+        local velocity = self.focusing and (self.space.vel / 3) or self.space.vel
+
+        self.space.vel_x = velocity * movement.x
+        self.space.vel_y = velocity * movement.y
 
         self:move()
     end
@@ -1113,10 +1119,17 @@ function clss.newTwarzship(s, ix, iy)
             return true
         end
 
+        self.focusing = love.keyboard.isDown("lshift")
+
         self:processMovement()
         self:processShooting()
     end
     function twarzship.draw(self, opt_color)
+        if self.focusing then
+            love.graphics.setColor(0, 0, 0, 0.4)
+            love.graphics.rectangle("fill", 0, 0, 250, 300)
+        end
+
         love.graphics.setColor(opt_color or self.colors[self.state])
         love.graphics.setLineWidth(
             self.state == "dead"
@@ -1129,7 +1142,7 @@ function clss.newTwarzship(s, ix, iy)
     -- Interacts self with ```obj``` enms object. Returns true if interaction happened
     function twarzship.interactWithObject(self, obj)
 
-        if utls.getDistanceBetweenPoints(self.space.x, self.space.y, obj.x, obj.y) <= obj.r + (self.space.hitbox_percentage * obj.r) then
+        if utls.getDistanceBetweenPoints(self.space.x, self.space.y, obj.x, obj.y) <= obj.r + (self.space.hitbox_percentage * self.space.r) then
             self.state = "hurt"
             obj:interact(self)
             return true

@@ -517,7 +517,4 @@ function enms.manager(action, delay)
     }
 end
 
--- Premade managers
-enms.managers = {}
-
 return enms

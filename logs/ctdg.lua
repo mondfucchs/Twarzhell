@@ -5,8 +5,11 @@ local utls = require("tools.utils")
 local asst = require("logs.asst")
 local enms = require("logs.enms")
 
-    -- cartridges
+-- ctdg.lua: cartridges's information --
 local ctdg = {}
+
+-- cartridges' hiscore and hitime --
+
 ctdg.scores = {
     common = 0,
     slowdeath = 0,
@@ -20,61 +23,99 @@ ctdg.times = {
     tiny = 0
 }
 
+-- cartridges' behavior and data --
+
 ctdg.ctdg = {}
 
+-- (helper) allows enemies to be spawned in a part of the screen, instead of all across it
+local screen_areas = {
+    { x = 0  , y = 0  , w = 250, h = 125 },
+    { x = 0  , y = 125, w = 250, h = 250 },
+    { x = 0  , y = 0  , w = 125, h = 250 },
+    { x = 125, y = 0  , w = 250, h = 250 },
+}
+
+-- (helper) returns a manager with basic behavior and screen area system.
+local function basicBehaviorManager(behavior_table, delay)
+
+    local behavior       = behavior_table
+    local behavior_index = 1
+    local behavior_cycle = #behavior_table
+
+    local area_index = 0 -- (starts at zero because will always be incremented on first function call)
+    local area_cycle = #screen_areas
+
+    return enms.manager(
+        function(space)
+
+            -- If behavior_index is back to 1 (or started there), current behavior cycle has ended and area should change
+            if (behavior_index == 1) then
+                area_index = utls.circular(area_index + 1, area_cycle)
+            end
+
+            -- Calling behavior for current index
+            behavior[behavior_index](space, screen_areas[area_index])
+            -- Incrementing behavior_index cyclically
+            behavior_index = utls.circular(behavior_index + 1, behavior_cycle)
+
+        end,
+        delay
+    )
+
+end
+
 function ctdg.ctdg.common()
-    local i = 1
     local behavior = {
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyshooter(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(6, 12),
                 math.random(5, 15) / 10
             ))
             s:insertObject(enms.polyshooter(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(6, 12),
                 math.random(5, 15) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyspin(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(6, 10),
                 math.random(4, 10) / 10
             ))
         end,
-        function(s)
-            local random = math.random(2)
-            if random == 1 then
+        function(s, area)
+            local picked_behavior = math.random(2)
+            if picked_behavior == 1 then
                 s:insertObject(enms.polybomb(
-                    s.data.x + math.random(s.data.w),
-                    s.data.y + math.random(s.data.h),
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
                     math.random(20, 25),
                     math.random(6, 12) / 10
                 ))
                 s:insertObject(enms.polybomb(
-                    s.data.x + math.random(s.data.w),
-                    s.data.y + math.random(s.data.h),
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
                     math.random(20, 25),
                     math.random(6, 12) / 10
                 ))
             else
                 s:insertObject(enms.unispin(
-                    s.data.x + math.random(s.data.w),
-                    s.data.y + math.random(s.data.h),
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
                     math.random(10, 20),
                     math.random(1, 4) / 10
                 ))
             end
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.uniaim(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(4, 6) / 10
             ))
         end
@@ -83,16 +124,13 @@ function ctdg.ctdg.common()
     return {
         name = "common",
         desc = "Intervals of five seconds, simplest mode.",
+
         difficulty = 7,
-        manager = enms.manager(
-            function(s)
-                behavior[i](s)
-                i = utls.circular(i + 1, 4)
-            end,
-            4
-        ),
+
+        manager = basicBehaviorManager(behavior, 4),
         influence = function() end
     }
+
 end
 function ctdg.ctdg.slowdeath()
     local i = 1
