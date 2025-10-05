@@ -48,8 +48,8 @@ local function basicBehaviorManager(behavior_table, delay)
     return enms.manager(
         function(space)
 
-            -- If behavior_index is back to 1 (or started there), current behavior cycle has ended and area should change
-            if (behavior_index == 1) then
+            -- If all enemies were defeated, now area should be changed
+            if (#space:getObjects() == 0) then
                 area_index = utls.circular(area_index + 1, area_cycle)
             end
 
@@ -120,69 +120,62 @@ function ctdg.ctdg.common()
             ))
         end
     }
-
     return {
-        name = "common",
-        desc = "Intervals of five seconds, simplest mode.",
 
-        difficulty = 7,
+        name        = "common",
+        desc        = "Intervals of five seconds, simplest mode.",
+        difficulty  = 7,
 
         manager = basicBehaviorManager(behavior, 4),
         influence = function() end
-    }
 
+    }
 end
 function ctdg.ctdg.slowdeath()
-    local i = 1
     local behavior = {
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyshooter(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(20, 30),
                 math.random(15, 25) / 10
             ))
             s:insertObject(enms.polyshooter(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(20, 30),
                 math.random(15, 25) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyspin(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(18, 26),
                 math.random(15, 25) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polybomb(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(45, 50),
                 math.random(25, 35) / 10
             ))
             s:insertObject(enms.uniaim(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(15, 20) / 10
             ))
         end,
     }
-
     return {
-        name = "slowdeath",
-        desc = "Slower enemies and more bullets.",
-        difficulty = 6,
-        manager = enms.manager(
-            function(s)
-                behavior[i](s)
-                i = utls.circular(i + 1, 3)
-            end,
-            4
-        ),
+
+        name        = "slowdeath",
+        desc        = "Slower enemies and more bullets.",
+        difficulty  = 6,
+
+        manager = basicBehaviorManager(behavior, 4),
         influence = function(g)
             g.background_color = {0.025, 0.025, 0.05}
             g.twarzship.stats.max_health = 125
@@ -191,62 +184,72 @@ function ctdg.ctdg.slowdeath()
             g.twarzship.shooting.bullet_velocity = 2
             g.twarzship.colors.idle = asst.clrs.bley
         end
+
     }
 end
 function ctdg.ctdg.hordes()
+    local area_index = 1
     local objects = {
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyshooter(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(15, 20),
                 math.random(5, 10) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyshooter(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(15, 20),
                 math.random(5, 10) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyspin(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(10, 12),
                 math.random(4, 10) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polybomb(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(20, 25),
                 math.random(6, 12) / 10
             ))
         end,
-        function (s)
+        function (s, area)
             s:insertObject(enms.unispin(
-                s.data.x + s.data.w / 2,
-                s.data.y + s.data.h / 2,
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(15, 25),
                 math.random(1, 4) / 10
             ))
         end
     }
-
     return {
-        name = "hordes",
-        desc = "Large intervals, several enemies appear at once.",
-        difficulty = 9,
+
+        name        = "hordes",
+        desc        = "Large intervals, several enemies appear at once.",
+        difficulty  = 9,
+
         manager = enms.manager(
             function(s)
-                for i = 1, 5, 1 do
-                    local j = math.random(#objects)
-                    objects[j](s)
+
+                -- If all enemies were defeated, now area should be changed
+                if (#s:getObjects() == 0) then
+                    area_index = utls.circular(area_index + 1, #screen_areas)
                 end
+
+                for _ = 1, 5, 1 do
+                    local object_index = math.random(#objects)
+                    objects[object_index](s, screen_areas[area_index])
+                end
+
             end,
             10
         ),
@@ -264,66 +267,61 @@ function ctdg.ctdg.hordes()
 
             g.twarzship.colors.idle = asst.clrs.drey
         end
+
     }
 end
 function ctdg.ctdg.tiny()
-    local i = 1
     local behavior = {
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyshooter(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(20, 30),
                 math.random(5, 15) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polyspin(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(8, 12),
                 math.random(15, 20) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.polybomb(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(30, 40),
                 math.random(5, 15) / 10
             ))
             s:insertObject(enms.unispin(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(20, 30),
                 math.random(5, 15) / 10
             ))
         end,
-        function(s)
+        function(s, area)
             s:insertObject(enms.uniaim(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(10, 15) / 10
             ))
             s:insertObject(enms.uniaim(
-                s.data.x + math.random(s.data.w),
-                s.data.y + math.random(s.data.h),
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
                 math.random(10, 15) / 10
             ))
         end
     }
-
     return {
+
         name = "tiny",
         desc = "Ship has way less damage, health, and shield.",
         difficulty = 8,
-        manager = enms.manager(
-            function(s)
-                behavior[i](s)
-                i = utls.circular(i + 1, 4)
-            end,
-            6
-        ),
+
+        manager = basicBehaviorManager(behavior, 6),
         influence = function(g)
             g.background_color = {0.075, 0.05, 0.025}
             g.twarzship.stats.max_health = 50
@@ -340,6 +338,7 @@ function ctdg.ctdg.tiny()
 
             g.twarzship.colors.idle = asst.clrs.orange
         end
+
     }
 end
 
