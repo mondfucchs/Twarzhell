@@ -64,6 +64,28 @@ local function basicBehaviorManager(behavior_table, delay)
 
 end
 
+function ctdg.ctdg.TROLLBERG()
+    local behavior = {
+        function(s, area)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10
+            ))
+        end,
+    }
+    return {
+
+        name        = "TROLLBERG",
+        desc        = "Hilda's city",
+        difficulty  = 5,
+
+        manager = basicBehaviorManager(behavior, 4),
+        influence = function() end
+
+    }
+end
 function ctdg.ctdg.common()
     local behavior = {
         function(s, area)
@@ -84,8 +106,8 @@ function ctdg.ctdg.common()
             s:insertObject(enms.polyspin(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(6, 10),
-                math.random(4, 10) / 10
+                math.random(8, 10),
+                math.random(10, 15) / 10
             ))
         end,
         function(s, area)
@@ -94,14 +116,14 @@ function ctdg.ctdg.common()
                 s:insertObject(enms.polybomb(
                     s.data.x + math.random(area.x, area.w),
                     s.data.y + math.random(area.y, area.h),
-                    math.random(20, 25),
-                    math.random(6, 12) / 10
+                    math.random(15, 20),
+                    math.random(8, 12) / 10
                 ))
                 s:insertObject(enms.polybomb(
                     s.data.x + math.random(area.x, area.w),
                     s.data.y + math.random(area.y, area.h),
-                    math.random(20, 25),
-                    math.random(6, 12) / 10
+                    math.random(15, 20),
+                    math.random(8, 12) / 10
                 ))
             else
                 s:insertObject(enms.unispin(
@@ -134,39 +156,47 @@ end
 function ctdg.ctdg.slowdeath()
     local behavior = {
         function(s, area)
-            s:insertObject(enms.polyshooter(
-                s.data.x + math.random(area.x, area.w),
-                s.data.y + math.random(area.y, area.h),
-                math.random(20, 30),
-                math.random(15, 25) / 10
-            ))
-            s:insertObject(enms.polyshooter(
-                s.data.x + math.random(area.x, area.w),
-                s.data.y + math.random(area.y, area.h),
-                math.random(20, 30),
-                math.random(15, 25) / 10
-            ))
-        end,
-        function(s, area)
-            s:insertObject(enms.polyspin(
-                s.data.x + math.random(area.x, area.w),
-                s.data.y + math.random(area.y, area.h),
-                math.random(18, 26),
-                math.random(15, 25) / 10
-            ))
+            for i = 1, math.random(2, 4) do
+
+                s:insertObject(enms.polyshooter(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(16, 22),
+                    math.random(15, 20) / 10,
+                    { bullet_vel = 1 }
+                ))
+
+            end
+
         end,
         function(s, area)
             s:insertObject(enms.polybomb(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(45, 50),
-                math.random(25, 35) / 10
+                math.random(20, 25),
+                math.random(30, 35) / 10,
+                { bullet_vel = 1.5 }
             ))
-            s:insertObject(enms.uniaim(
-                s.data.x + math.random(area.x, area.w),
-                s.data.y + math.random(area.y, area.h),
-                math.random(15, 20) / 10
-            ))
+        end,
+        function(s, area)
+            local random_behavior = math.random()
+
+            if (random_behavior <= 0.5) then
+                s:insertObject(enms.polyspin(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(16, 22),
+                    math.random(10, 15) / 10,
+                    { bullet_vel = 1 }
+                ))
+            else
+                s:insertObject(enms.uniaim(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(5, 7) / 10,
+                    { bullet_vel = 1 }
+                ))
+            end
         end,
     }
     return {
@@ -344,6 +374,7 @@ end
 
 function ctdg.getCartridges()
     return {
+        "TROLLBERG",
         "common",
         "slowdeath",
         "hordes",

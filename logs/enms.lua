@@ -81,12 +81,14 @@ local function defaultInteraction()
     end
 end
 
-function enms.polyshooter(x, y, bullets, delay)
+function enms.polyshooter(x, y, bullets, delay, preferences)
     local colors = {
         idle = asst.clrs.red,
         init = {0.8, 0.1, 0.1, 0.5},
         hurt = {1, 1, 1},
     }
+
+    preferences = preferences or {}
 
     local polyshooter = {
         x = x,
@@ -98,15 +100,15 @@ function enms.polyshooter(x, y, bullets, delay)
             timer = 2
         },
 
-        life = 20,
+        life = preferences.life or 20,
         hurtable = true,
-        damage = 2,
+        damage = preferences.damage or 2,
 
         delay = delay,
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 2
+            vel = preferences.bullet_vel or 2
         }
     }
 
@@ -162,7 +164,9 @@ function enms.polyshooter(x, y, bullets, delay)
 
     return polyshooter
 end
-function enms.polybomb(x, y, bullets, delay)
+function enms.polybomb(x, y, bullets, delay, preferences)
+    preferences = preferences or {}
+
     local polybomb = {
         x = x,
         y = y,
@@ -173,14 +177,14 @@ function enms.polybomb(x, y, bullets, delay)
             timer = 2
         },
 
-        life = 20,
-        damage = 2,
+        life = preferences.life or 20,
+        damage = preferences.damage or 2,
 
         delay = delay,
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 3
+            vel = preferences.bullet_vel or 3
         }
     }
 
@@ -241,12 +245,14 @@ function enms.polybomb(x, y, bullets, delay)
 
     return polybomb
 end
-function enms.polyspin(x, y, bullets, delay)
+function enms.polyspin(x, y, bullets, delay, preferences)
     local colors = {
         idle = asst.clrs.orange,
         init = {240/255, 160/255, 31/255, 0.5},
         hurt = {1, 1, 1},
     }
+
+    preferences = preferences or {}
 
     local polyspin = {
         x = x,
@@ -258,16 +264,16 @@ function enms.polyspin(x, y, bullets, delay)
             timer = 2
         },
 
-        life = 30,
+        life = preferences.life or 30,
         hurtable = true,
-        damage = 4,
+        damage = preferences.damage or 4,
 
         ltime = 0,
         delay = delay,
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = 1
+            vel = preferences.bullet_vel or 1
         },
     }
 
@@ -324,12 +330,14 @@ function enms.polyspin(x, y, bullets, delay)
 
     return polyspin
 end
-function enms.unispin(x, y, divisions, delay)
+function enms.unispin(x, y, divisions, delay, preferences)
     local colors = {
         idle = asst.clrs.green,
         init = {181/255, 232/255, 39/255, 0.5},
         hurt = {1, 1, 1},
     }
+
+    preferences = preferences or {}
 
     local unispin = {
         x = x,
@@ -341,9 +349,9 @@ function enms.unispin(x, y, divisions, delay)
             timer = 2
         },
 
-        life = 60,
+        life = preferences.life or 60,
         hurtable = true,
-        damage = 2,
+        damage = preferences.damage or .2,
 
         ltime = 0,
         delay = delay,
@@ -351,7 +359,7 @@ function enms.unispin(x, y, divisions, delay)
         bullets = {
             current = 1,
             divisions = divisions,
-            vel = 2
+            vel = preferences.bullet_vel or .2
         },
     }
 
@@ -407,12 +415,14 @@ function enms.unispin(x, y, divisions, delay)
 
     return unispin
 end
-function enms.uniaim(x, y, delay)
+function enms.uniaim(x, y, delay, preferences)
     local colors = {
         idle = asst.clrs.lgreen,
         init = {asst.clrs.lgreen[1], asst.clrs.lgreen[2], asst.clrs.lgreen[3], 0.5},
         hurt = {1, 1, 1},
     }
+
+    preferences = preferences or {}
 
     local uniaim = {
         x = x,
@@ -424,15 +434,15 @@ function enms.uniaim(x, y, delay)
             timer = 2
         },
 
-        life = 45,
+        life = preferences.life or 45,
         hurtable = true,
-        damage = 1,
+        damage = preferences.damage or 1,
 
         ltime = 0,
         delay = delay,
         timer = delay,
         bullets = {
-            vel = 2
+            vel = preferences.bullet_vel or 2
         },
     }
 
