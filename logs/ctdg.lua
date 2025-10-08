@@ -224,16 +224,16 @@ function ctdg.ctdg.hordes()
             s:insertObject(enms.polyshooter(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(15, 20),
-                math.random(5, 10) / 10
+                math.random(10, 20),
+                math.random(8, 12) / 10
             ))
         end,
         function(s, area)
             s:insertObject(enms.polyshooter(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(15, 20),
-                math.random(5, 10) / 10
+                math.random(10, 20),
+                math.random(8, 12) / 10
             ))
         end,
         function(s, area)
@@ -241,22 +241,22 @@ function ctdg.ctdg.hordes()
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
                 math.random(10, 12),
-                math.random(4, 10) / 10
+                math.random(6, 10) / 10
             ))
         end,
         function(s, area)
             s:insertObject(enms.polybomb(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(20, 25),
-                math.random(6, 12) / 10
+                math.random(15, 20),
+                math.random(10, 15) / 10
             ))
         end,
         function (s, area)
             s:insertObject(enms.unispin(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(15, 25),
+                math.random(20, 25),
                 math.random(1, 4) / 10
             ))
         end
