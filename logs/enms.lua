@@ -359,7 +359,7 @@ function enms.unispin(x, y, divisions, delay, preferences)
         bullets = {
             current = 1,
             divisions = divisions,
-            vel = preferences.bullet_vel or .2
+            vel = preferences.bullet_vel or 1.5
         },
     }
 

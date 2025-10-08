@@ -306,8 +306,8 @@ function ctdg.ctdg.tiny()
             s:insertObject(enms.polyshooter(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(20, 30),
-                math.random(5, 15) / 10
+                math.random(15, 20),
+                math.random(10, 20) / 10
             ))
         end,
         function(s, area)
@@ -322,14 +322,14 @@ function ctdg.ctdg.tiny()
             s:insertObject(enms.polybomb(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
-                math.random(30, 40),
-                math.random(5, 15) / 10
+                math.random(15, 20),
+                math.random(15, 25) / 10
             ))
             s:insertObject(enms.unispin(
                 s.data.x + math.random(area.x, area.w),
                 s.data.y + math.random(area.y, area.h),
                 math.random(20, 30),
-                math.random(5, 15) / 10
+                math.random(5, 7) / 10
             ))
         end,
         function(s, area)
@@ -360,11 +360,11 @@ function ctdg.ctdg.tiny()
             g.twarzship.stats.max_shield = 50
             g.twarzship.stats.shield = 50
 
-            g.twarzship.space.vel = 3.5
+            g.twarzship.space.vel = 2.8
             g.twarzship.space.r = 6
 
             g.twarzship.shooting.bullet_delay = 0.125
-            g.twarzship.shooting.bullet_damage = 0.125/4
+            g.twarzship.shooting.bullet_damage = 0.125/2
 
             g.twarzship.colors.idle = asst.clrs.orange
         end
