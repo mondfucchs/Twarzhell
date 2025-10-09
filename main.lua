@@ -53,17 +53,6 @@ end
 function love.draw()
     push:start()
     game:draw()
-
-    love.graphics.setColor(0, 0, 0, 0.75)
-    love.graphics.rectangle("fill", 0, 0, 50, 75)
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print(
-        #game.space.objects .. "\n" ..
-        #game.space.enemy_bullets .. "\n" ..
-        #game.space.tship_bullets .. "\n" ..
-        #game.space.managers
-    )
-
     push:finish()
 end
 
@@ -78,15 +67,6 @@ function love.keypressed(key)
 
     elseif key == "escape" and (game.state == "paused" or game.state == "playing") then
         game.state = utls.boolToValue(game.state == "paused", "playing", "paused")
-    end
-
-    if key == "u" then
-
-        for _, catridge in pairs(ctdg:getCartridges()) do
-            ctdg:setTimes(catridge, 0)
-            ctdg:setScore(catridge, 0)
-        end
-
     end
 
 end

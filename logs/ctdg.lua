@@ -64,28 +64,6 @@ local function basicBehaviorManager(behavior_table, delay)
 
 end
 
-function ctdg.ctdg.TROLLBERG()
-    local behavior = {
-        function(s, area)
-            s:insertObject(enms.polyshooter(
-                s.data.x + math.random(area.x, area.w),
-                s.data.y + math.random(area.y, area.h),
-                math.random(6, 12),
-                math.random(5, 15) / 10
-            ))
-        end,
-    }
-    return {
-
-        name        = "TROLLBERG",
-        desc        = "Hilda's city",
-        difficulty  = 5,
-
-        manager = basicBehaviorManager(behavior, 4),
-        influence = function() end
-
-    }
-end
 function ctdg.ctdg.common()
     local behavior = {
         function(s, area)
@@ -374,7 +352,6 @@ end
 
 function ctdg.getCartridges()
     return {
-        "TROLLBERG",
         "common",
         "slowdeath",
         "hordes",

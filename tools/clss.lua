@@ -1149,8 +1149,9 @@ function clss.newTwarzship(s, ix, iy)
         self:processShooting()
     end
     function twarzship.draw(self, opt_color)
+
         if self.focusing then
-            love.graphics.setColor(0, 0, 0, 0.4)
+            love.graphics.setColor(0.025, 0.025, 0.025, 0.35)
             love.graphics.rectangle("fill", 0, 0, 250, 300)
         end
 
