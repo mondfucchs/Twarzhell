@@ -1,5 +1,5 @@
     -- tools
-local love = require("love")
+
 
     -- assets
 local asst = {}

@@ -1,5 +1,4 @@
     -- tools
-local love = require("love")
 local utls = require("tools.utils")
     -- logs
 local asst = require("logs.asst")
@@ -141,7 +140,7 @@ function ctdg.ctdg.slowdeath()
                     s.data.y + math.random(area.y, area.h),
                     math.random(16, 22),
                     math.random(15, 20) / 10,
-                    { bullet_vel = 1 }
+                    { bullet_vel = 60 }
                 ))
 
             end
@@ -153,7 +152,7 @@ function ctdg.ctdg.slowdeath()
                 s.data.y + math.random(area.y, area.h),
                 math.random(20, 25),
                 math.random(30, 35) / 10,
-                { bullet_vel = 1.5 }
+                { bullet_vel = 90 }
             ))
         end,
         function(s, area)
@@ -165,14 +164,14 @@ function ctdg.ctdg.slowdeath()
                     s.data.y + math.random(area.y, area.h),
                     math.random(16, 22),
                     math.random(10, 15) / 10,
-                    { bullet_vel = 1 }
+                    { bullet_vel = 60 }
                 ))
             else
                 s:insertObject(enms.uniaim(
                     s.data.x + math.random(area.x, area.w),
                     s.data.y + math.random(area.y, area.h),
                     math.random(5, 7) / 10,
-                    { bullet_vel = 1 }
+                    { bullet_vel = 60 }
                 ))
             end
         end,
@@ -188,8 +187,8 @@ function ctdg.ctdg.slowdeath()
             g.background_color = {0.025, 0.025, 0.05}
             g.twarzship.stats.max_health = 125
             g.twarzship.stats.health = 125
-            g.twarzship.space.vel = 1.5
-            g.twarzship.shooting.bullet_velocity = 2
+            g.twarzship.space.vel = 90
+            g.twarzship.shooting.bullet_velocity = 120
             g.twarzship.colors.idle = asst.clrs.bley
         end
 
@@ -269,7 +268,7 @@ function ctdg.ctdg.hordes()
 
             g.twarzship.space.r = 7
 
-            g.twarzship.space.vel = 2
+            g.twarzship.space.vel = 120
             g.twarzship.shooting.bullet_delay = 0.125/2
             g.twarzship.shooting.bullet_damage = 0.125
 
@@ -338,7 +337,7 @@ function ctdg.ctdg.tiny()
             g.twarzship.stats.max_shield = 50
             g.twarzship.stats.shield = 50
 
-            g.twarzship.space.vel = 2.8
+            g.twarzship.space.vel = 168
             g.twarzship.space.r = 6
 
             g.twarzship.shooting.bullet_delay = 0.125

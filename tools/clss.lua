@@ -1,5 +1,4 @@
     -- tools
-local love = require("love")
 local utls = require("tools.utils")
 local save = require("tools.save")
     -- logs
@@ -542,7 +541,7 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
         self.music:update(self.state, self.music_volume, self.sfx_volume)
 
         if game.state == "playing" then
-            self.currentdata.timer = self.currentdata.timer + love.timer.getAverageDelta()
+            self.currentdata.timer = self.currentdata.timer + deltaTime
             if self.twarzship:update() then
 
                 if self.currentdata.score > ctdg:getScores()[self.currentdata.cartridge] then
@@ -987,9 +986,9 @@ function clss.newBullet(x, y, vx, vy, dmg, clr)
     }
 
     function bullet.update(self)
-        self.x = self.x + vx
-        self.y = self.y + vy
-        self.life = self.life - love.timer.getAverageDelta()
+        self.x = self.x + vx * deltaTime
+        self.y = self.y + vy * deltaTime
+        self.life = self.life - deltaTime
 
         if self.life <= 0 then
             return false
@@ -1021,7 +1020,7 @@ function clss.newTwarzship(s, ix, iy)
 
             vel_x = 0,
             vel_y = 0,
-            vel   = 3,
+            vel   = 180,
         },
 
         stats = {
@@ -1035,7 +1034,7 @@ function clss.newTwarzship(s, ix, iy)
             bullet_damage = 1/8,
             bullet_delay = 1/8,
             bullet_timer = 0,
-            bullet_velocity = 4,
+            bullet_velocity = 240,
         },
 
         colors = {
@@ -1077,7 +1076,7 @@ function clss.newTwarzship(s, ix, iy)
             movement.y = 1
         end
 
-        local velocity = self.focusing and (self.space.vel / 3) or self.space.vel
+        local velocity = (self.focusing and (self.space.vel / 3) or self.space.vel) * deltaTime
 
         self.space.vel_x = velocity * movement.x
         self.space.vel_y = velocity * movement.y
@@ -1132,7 +1131,7 @@ function clss.newTwarzship(s, ix, iy)
             self.shooting.bullet_timer = self.shooting.bullet_delay
         end
 
-        self.shooting.bullet_timer = self.shooting.bullet_timer - love.timer.getAverageDelta()
+        self.shooting.bullet_timer = self.shooting.bullet_timer - deltaTime
     end
 
     function twarzship.update(self)
@@ -1181,9 +1180,9 @@ function clss.newTwarzship(s, ix, iy)
 
         self.shooting.bullet_damage = 0.125
         self.shooting.bullet_delay = 0.125
-        self.shooting.bullet_velocity = 4
+        self.shooting.bullet_velocity = 240
         self.space.r = 8
-        self.space.vel = 3
+        self.space.vel = 180
 
         self.colors.idle = asst.clrs.brey
     end

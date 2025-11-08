@@ -1,5 +1,4 @@
     -- tools
-local love = require("love")
 local ctdg = require("logs.ctdg")
 
 local asst = require("logs.asst")

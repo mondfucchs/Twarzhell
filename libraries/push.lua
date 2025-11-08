@@ -1,4 +1,3 @@
-local love = require("love")
 
 -- push.lua v0.4
 

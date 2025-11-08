@@ -1,5 +1,5 @@
     -- tools
-local love = require("love")
+
 local utls = require("tools.utils")
     -- logs
 local asst = require("logs.asst")
@@ -26,9 +26,9 @@ function enms.blueprint_bullet(basedmg, life, radius, baseclr, draw, interact)
         }
 
         function bullet.update(self)
-            self.x = self.x + self.vx
-            self.y = self.y + self.vy
-            self.life = self.life - love.timer.getAverageDelta()
+            self.x = self.x + self.vx * deltaTime
+            self.y = self.y + self.vy * deltaTime
+            self.life = self.life - deltaTime
 
             if self.life <= 0 then
                 return false
@@ -108,21 +108,21 @@ function enms.polyshooter(x, y, bullets, delay, preferences)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = preferences.bullet_vel or 2
+            vel = preferences.bullet_vel or 120
         }
     }
 
     function polyshooter.update(self, S)
         if self.init.isInit then
-            self.init.timer = self.init.timer - love.timer.getAverageDelta()
+            self.init.timer = self.init.timer - deltaTime
             if self.init.timer <= 0 then
                 self.init.isInit = false
             end
             goto init
         end
 
-        self.timer = self.timer - love.timer.getAverageDelta()
-        self.life = self.life - love.timer.getAverageDelta()
+        self.timer = self.timer - deltaTime
+        self.life = self.life - deltaTime
 
         if self.timer <= 0 then
             asst.snds.enemy_shot:stop()
@@ -184,20 +184,20 @@ function enms.polybomb(x, y, bullets, delay, preferences)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = preferences.bullet_vel or 3
+            vel = preferences.bullet_vel or 150
         }
     }
 
     function polybomb.update(self, S)
         if self.init.isInit then
-            self.init.timer = self.init.timer - love.timer.getAverageDelta()
+            self.init.timer = self.init.timer - deltaTime
             if self.init.timer <= 0 then
                 self.init.isInit = false
             end
             goto init
         end
 
-        self.timer = self.timer - love.timer.getAverageDelta()
+        self.timer = self.timer - deltaTime
 
         if self.timer <= 0 then
             asst.snds.explosion:stop()
@@ -273,22 +273,22 @@ function enms.polyspin(x, y, bullets, delay, preferences)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = preferences.bullet_vel or 1
+            vel = preferences.bullet_vel or 60
         },
     }
 
     function polyspin.update(self, S)
         if self.init.isInit then
-            self.init.timer = self.init.timer - love.timer.getAverageDelta()
+            self.init.timer = self.init.timer - deltaTime
             if self.init.timer <= 0 then
                 self.init.isInit = false
             end
             goto init
         end
 
-        self.ltime = self.ltime + 1/60
-        self.timer = self.timer - love.timer.getAverageDelta()
-        self.life = self.life - love.timer.getAverageDelta()
+        self.ltime = self.ltime + deltaTime
+        self.timer = self.timer - deltaTime
+        self.life = self.life - deltaTime
 
         if self.timer <= 0 then
             asst.snds.enemy_shot:stop()
@@ -351,7 +351,7 @@ function enms.unispin(x, y, divisions, delay, preferences)
 
         life = preferences.life or 60,
         hurtable = true,
-        damage = preferences.damage or .2,
+        damage = preferences.damage or 2,
 
         ltime = 0,
         delay = delay,
@@ -359,22 +359,22 @@ function enms.unispin(x, y, divisions, delay, preferences)
         bullets = {
             current = 1,
             divisions = divisions,
-            vel = preferences.bullet_vel or 1.5
+            vel = preferences.bullet_vel or 90
         },
     }
 
     function unispin.update(self, S)
         if self.init.isInit then
-            self.init.timer = self.init.timer - love.timer.getAverageDelta()
+            self.init.timer = self.init.timer - deltaTime
             if self.init.timer <= 0 then
                 self.init.isInit = false
             end
             goto init
         end
 
-        self.ltime = self.ltime + 1/60
-        self.timer = self.timer - love.timer.getAverageDelta()
-        self.life = self.life - love.timer.getAverageDelta()
+        self.ltime = self.ltime + deltaTime
+        self.timer = self.timer - deltaTime
+        self.life = self.life - deltaTime
 
         if self.timer <= 0 then
             asst.snds.enemy_shot:stop()
@@ -442,7 +442,7 @@ function enms.uniaim(x, y, delay, preferences)
         delay = delay,
         timer = delay,
         bullets = {
-            vel = preferences.bullet_vel or 2
+            vel = preferences.bullet_vel or 120
         },
     }
 
@@ -452,7 +452,7 @@ function enms.uniaim(x, y, delay, preferences)
 
     function uniaim.update(self, S)
         if self.init.isInit then
-            self.init.timer = self.init.timer - love.timer.getAverageDelta()
+            self.init.timer = self.init.timer - deltaTime
             if self.init.timer <= 0 then
                 self.init.isInit = false
             end
@@ -463,9 +463,9 @@ function enms.uniaim(x, y, delay, preferences)
         dif_y = S.twarzship.space.y - self.y
         hip = math.sqrt(dif_x^2 + dif_y^2)
 
-        self.ltime = self.ltime + 1/60
-        self.timer = self.timer - love.timer.getAverageDelta()
-        self.life = self.life - love.timer.getAverageDelta()
+        self.ltime = self.ltime + deltaTime
+        self.timer = self.timer - deltaTime
+        self.life = self.life - deltaTime
 
         if self.timer <= 0 then
             asst.snds.enemy_shot:stop()
@@ -514,7 +514,7 @@ function enms.manager(action, delay)
         timer = 0,
 
         update = function(self, space)
-            self.timer = self.timer - 1/60
+            self.timer = self.timer - deltaTime
 
             if self.timer <= 0 then
                 self.timer = self.delay

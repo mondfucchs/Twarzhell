@@ -1,9 +1,9 @@
     -- tools
-local love = require("love")
 local clss = require("tools.clss")
-local push = require("tools.push")
 local utls = require("tools.utils")
 local save = require("tools.save")
+    -- libraries
+local push = require("libraries.push")
     -- logs
 local enms = require("logs.enms")
 local ctdg = require("logs.ctdg")
@@ -14,6 +14,8 @@ local asst = require("logs.asst")
 love.mouse.setVisible(false)
 
 -- values
+deltaTime = 0
+
 local gameWidth = 250
 local gameHeight = 300
 local scale = 2
@@ -33,6 +35,7 @@ local game = clss.game(coords.ship_initial_x, coords.ship_initial_y, gameWidth, 
 
 -- löve2d callbacks
 function love.load()
+
     push:setupScreen(
         gameWidth,
         gameHeight,
@@ -47,6 +50,7 @@ function love.load()
 end
 
 function love.update(dt)
+    deltaTime = dt
     game:update()
 end
 
