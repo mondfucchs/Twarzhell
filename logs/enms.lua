@@ -19,7 +19,7 @@ function enms.blueprint_bullet(basedmg, life, radius, baseclr, draw, interact)
             c = color or baseclr,
             r = radius,
             single = true,
-            damage = basedmg or dmg,
+            damage = dmg or basedmg,
             life = life,
             interact = interact,
             state = "idle"
@@ -108,7 +108,8 @@ function enms.polyshooter(x, y, bullets, delay, preferences)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = preferences.bullet_vel or 120
+            vel = preferences.bullet_vel or 120,
+            dmg = preferences.bullet_dmg or 12
         }
     }
 
@@ -139,7 +140,9 @@ function enms.polyshooter(x, y, bullets, delay, preferences)
                         self.x,
                         self.y,
                         math.cos(i) * self.bullets.vel,
-                        math.sin(i) * self.bullets.vel
+                        math.sin(i) * self.bullets.vel,
+                        nil,
+                        self.bullets.dmg
                     )
                 )
             end
@@ -184,7 +187,8 @@ function enms.polybomb(x, y, bullets, delay, preferences)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = preferences.bullet_vel or 150
+            vel = preferences.bullet_vel or 150,
+            dmg = preferences.bullet_dmg or 16,
         }
     }
 
@@ -214,7 +218,7 @@ function enms.polybomb(x, y, bullets, delay, preferences)
                         math.cos(i) * self.bullets.vel,
                         math.sin(i) * self.bullets.vel,
                         {240/255, 104/255, 31/255},
-                        16
+                        self.bullets.dmg
                     )
                 )
             end
@@ -273,7 +277,8 @@ function enms.polyspin(x, y, bullets, delay, preferences)
         timer = delay,
         bullets = {
             amount = bullets,
-            vel = preferences.bullet_vel or 60
+            vel = preferences.bullet_vel or 60,
+            dmg = preferences.bullet_dmg or 8,
         },
     }
 
@@ -306,7 +311,7 @@ function enms.polyspin(x, y, bullets, delay, preferences)
                         math.cos(self.ltime*4 + i) * self.bullets.vel,
                         math.sin(self.ltime*4 + i) * self.bullets.vel,
                         {240/255, 160/255, 31/255},
-                        8
+                        self.bullets.dmg
                     )
                 )
             end
@@ -359,7 +364,8 @@ function enms.unispin(x, y, divisions, delay, preferences)
         bullets = {
             current = 1,
             divisions = divisions,
-            vel = preferences.bullet_vel or 90
+            vel = preferences.bullet_vel or 90,
+            dmg = preferences.bullet_dmg or 12,
         },
     }
 
@@ -390,7 +396,8 @@ function enms.unispin(x, y, divisions, delay, preferences)
                     self.y,
                     math.cos(self.bullets.current) * self.bullets.vel,
                     math.sin(self.bullets.current) * self.bullets.vel,
-                    asst.clrs.green
+                    asst.clrs.green,
+                    self.bullets.dmg
                 )
             )
 
@@ -442,7 +449,8 @@ function enms.uniaim(x, y, delay, preferences)
         delay = delay,
         timer = delay,
         bullets = {
-            vel = preferences.bullet_vel or 120
+            vel = preferences.bullet_vel or 120,
+            dmg = preferences.bullet_dmg or 8,
         },
     }
 
@@ -482,7 +490,7 @@ function enms.uniaim(x, y, delay, preferences)
                     (dif_x / hip) * self.bullets.vel,
                     (dif_y / hip) * self.bullets.vel,
                     asst.clrs.lgreen,
-                    8
+                    self.bullets.dmg
                 )
             )
         end
