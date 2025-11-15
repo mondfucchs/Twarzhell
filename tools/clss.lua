@@ -605,9 +605,9 @@ function clss.game(twarzship_x, twarzship_y, game_width, game_height)
             -- Title
                 -- Shadow
             love.graphics.setColor(asst.clrs.red); love.graphics.setFont(asst.fnts.midfont_a)
-            love.graphics.print("Twarzhell", (self.coords.game_width/2), 32, math.sin(os.clock()-2)/16, 1, 1, (asst.fnts.midfont_a:getWidth("Twarzhell")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))                -- Title
+            love.graphics.print("twarztesting", (self.coords.game_width/2), 32, math.sin(os.clock()-2)/16, 1, 1, (asst.fnts.midfont_a:getWidth("twarztesting")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))                -- Title
             love.graphics.setColor(1, 1, 1)
-            love.graphics.print("Twarzhell", (self.coords.game_width/2), 32, math.sin(os.clock())/16, 1, 1, (asst.fnts.midfont_a:getWidth("Twarzhell")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))
+            love.graphics.print("twarztesting", (self.coords.game_width/2), 32, math.sin(os.clock())/16, 1, 1, (asst.fnts.midfont_a:getWidth("twarztesting")/2), (asst.fnts.midfont_a:getHeight("Twarzhell")/2))
 
             if self.menu.section == "opt" then
                 drawTitlescreen()

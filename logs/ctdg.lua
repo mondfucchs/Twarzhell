@@ -10,16 +10,16 @@ local ctdg = {}
 -- cartridges' hiscore and hitime --
 
 ctdg.scores = {
-    common = 0,
-    slowdeath = 0,
-    hordes = 0,
-    tiny = 0
+    original = 0,
+    more_damage = 0,
+    more_enemies = 0,
+    more_dmg_and_enms = 0,
 }
 ctdg.times = {
-    common = 0,
-    slowdeath = 0,
-    hordes = 0,
-    tiny = 0
+    original = 0,
+    more_damage = 0,
+    more_enemies = 0,
+    more_dmg_and_enms = 0,
 }
 
 -- cartridges' behavior and data --
@@ -63,7 +63,7 @@ local function basicBehaviorManager(behavior_table, delay)
 
 end
 
-function ctdg.ctdg.common()
+function ctdg.ctdg.original()
     local behavior = {
         function(s, area)
             s:insertObject(enms.polyshooter(
@@ -121,16 +121,258 @@ function ctdg.ctdg.common()
     }
     return {
 
-        name        = "common",
-        desc        = "Intervals of five seconds, simplest mode.",
-        difficulty  = 7,
+        name        = "original",
+        desc        = "No changes",
+        difficulty  = 0,
 
         manager = basicBehaviorManager(behavior, 4),
         influence = function() end
 
     }
 end
-function ctdg.ctdg.slowdeath()
+function ctdg.ctdg.more_damage()
+    local behavior = {
+        function(s, area)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10,
+                { bullet_dmg = 16 }
+            ))
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10,
+                { bullet_dmg = 16 }
+            ))
+        end,
+        function(s, area)
+            s:insertObject(enms.polyspin(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(8, 10),
+                math.random(10, 15) / 10,
+                { bullet_dmg = 12 }
+            ))
+        end,
+        function(s, area)
+            local picked_behavior = math.random(2)
+            if picked_behavior == 1 then
+                s:insertObject(enms.polybomb(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(15, 20),
+                    math.random(8, 12) / 10,
+                    { bullet_dmg = 20 }
+                ))
+                s:insertObject(enms.polybomb(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(15, 20),
+                    math.random(8, 12) / 10,
+                    { bullet_dmg = 20 }
+                ))
+            else
+                s:insertObject(enms.unispin(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(10, 20),
+                    math.random(1, 4) / 10,
+                    { bullet_dmg = 16 }
+                ))
+            end
+        end,
+        function(s, area)
+            s:insertObject(enms.uniaim(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(4, 6) / 10,
+                { bullet_dmg = 12 }
+            ))
+        end
+    }
+    return {
+
+        name        = "more_damage",
+        desc        = "Enemies deal more damage",
+        difficulty  = 0,
+
+        manager = basicBehaviorManager(behavior, 4),
+        influence = function() end
+
+    }
+end
+function ctdg.ctdg.more_enemies()
+    local behavior = {
+        function(s, area)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10
+            ))
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10
+            ))
+        end,
+        function(s, area)
+            s:insertObject(enms.polyspin(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(8, 10),
+                math.random(10, 15) / 10
+            ))
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10
+            ))
+        end,
+        function(s, area)
+            local picked_behavior = math.random(2)
+            if picked_behavior == 1 then
+                s:insertObject(enms.polybomb(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(15, 20),
+                    math.random(8, 12) / 10
+                ))
+                s:insertObject(enms.polybomb(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(15, 20),
+                    math.random(8, 12) / 10
+                ))
+            else
+                s:insertObject(enms.unispin(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(10, 20),
+                    math.random(1, 4) / 10
+                ))
+                s:insertObject(enms.unispin(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(10, 20),
+                    math.random(1, 4) / 10
+                ))
+            end
+        end,
+        function(s, area)
+            s:insertObject(enms.uniaim(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(4, 6) / 10
+            ))
+        end
+    }
+    return {
+
+        name        = "more_enemies",
+        desc        = "More enemies spawn",
+        difficulty  = 0,
+
+        manager = basicBehaviorManager(behavior, 4),
+        influence = function() end
+
+    }
+end
+function ctdg.ctdg.more_dmg_and_enms()
+    local behavior = {
+        function(s, area)
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10,
+                { bullet_dmg = 16 }
+            ))
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10,
+                { bullet_dmg = 16 }
+            ))
+        end,
+        function(s, area)
+            s:insertObject(enms.polyspin(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(8, 10),
+                math.random(10, 15) / 10,
+                { bullet_dmg = 12 }
+            ))
+            s:insertObject(enms.polyshooter(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(6, 12),
+                math.random(5, 15) / 10,
+                { bullet_dmg = 16 }
+            ))
+        end,
+        function(s, area)
+            local picked_behavior = math.random(2)
+            if picked_behavior == 1 then
+                s:insertObject(enms.polybomb(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(15, 20),
+                    math.random(8, 12) / 10,
+                    { bullet_dmg = 20 }
+                ))
+                s:insertObject(enms.polybomb(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(15, 20),
+                    math.random(8, 12) / 10,
+                    { bullet_dmg = 20 }
+                ))
+            else
+                s:insertObject(enms.unispin(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(10, 20),
+                    math.random(1, 4) / 10,
+                    { bullet_dmg = 16 }
+                ))
+                s:insertObject(enms.unispin(
+                    s.data.x + math.random(area.x, area.w),
+                    s.data.y + math.random(area.y, area.h),
+                    math.random(10, 20),
+                    math.random(3, 6) / 10,
+                    { bullet_dmg = 16 }
+                ))
+            end
+        end,
+        function(s, area)
+            s:insertObject(enms.uniaim(
+                s.data.x + math.random(area.x, area.w),
+                s.data.y + math.random(area.y, area.h),
+                math.random(4, 6) / 10,
+                { bullet_dmg = 12 }
+            ))
+        end
+    }
+    return {
+
+        name        = "more_dmg_and_enms",
+        desc        = "More enemies and more damage",
+        difficulty  = 0,
+
+        manager = basicBehaviorManager(behavior, 4),
+        influence = function() end
+
+    }
+end
+
+--[[ function ctdg.ctdg.slowdeath()
     local behavior = {
         function(s, area)
             for i = 1, math.random(2, 4) do
@@ -347,14 +589,14 @@ function ctdg.ctdg.tiny()
         end
 
     }
-end
+end ]]
 
 function ctdg.getCartridges()
     return {
-        "common",
-        "slowdeath",
-        "hordes",
-        "tiny",
+        "original",
+        "more_damage",
+        "more_enemies",
+        "more_dmg_and_enms"
     }
 end
 

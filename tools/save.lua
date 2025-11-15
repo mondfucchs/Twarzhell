@@ -19,21 +19,22 @@ local function invertBytes(str)
 
 end
 
+-- Save functions should REALLY do not do anything, don't want to mess with playtesters savefiles!
 function save.save()
 
-    local savefile = love.filesystem.newFile("savefile.txt")
+--[[     local savefile = love.filesystem.newFile("savefile.txt")
 
     savefile:open("w")
     for _, value in pairs(ctdg.getCartridges()) do
         savefile:write(invertBytes(value .. ":" .. ctdg:getScores()[value] .. ":" .. ctdg:getTimes()[value]))
     end
 
-    savefile:close()
+    savefile:close() ]]
 
 end
 function save.load()
 
-    -- If game wasn't ever saved before, do not load anything and save the base scores and times.
+--[[     -- If game wasn't ever saved before, do not load anything and save the base scores and times.
     if not love.filesystem.getInfo("savefile.txt") then
 
         save.save()
@@ -54,7 +55,7 @@ function save.load()
             ctdg.times[value] = tonumber(ctdg.times[value]) or 0
         end
 
-    end
+    end ]]
 
 end
 
